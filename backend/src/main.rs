@@ -138,12 +138,18 @@ async fn main() {
         .layer(cors)
         .with_state(state);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
-    tracing::info!("Starting server on {}", addr);
-
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .expect("failed to bind");
+    let listener = match tokio::net::TcpListener::bind(format!("[::]:{}", config.port)).await {
+        Ok(l) => {
+            tracing::info!("Starting dual-stack server on [::]:{}", config.port);
+            l
+        }
+        Err(e) => {
+            tracing::warn!("Failed to bind IPv6 [::]:{} ({:?}). Falling back to IPv4 0.0.0.0:{}", config.port, e, config.port);
+            tokio::net::TcpListener::bind(format!("0.0.0.0:{}", config.port))
+                .await
+                .expect("failed to bind to IPv4")
+        }
+    };
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),
@@ -178,6 +184,31 @@ fn generate_pwa_manifest(site_title: &str) {
     let _ = std::fs::write(
         dist_dir.join("manifest.json"),
         serde_json::to_string_pretty(&pwa_manifest).unwrap_or_default(),
+    );
+
+    // Also generate asset-manifest.json for service worker registration
+    let mut assets = Vec::new();
+    fn walk_dir(dir: &std::path::Path, prefix: &str, assets: &mut Vec<String>) {
+        if let Ok(entries) = std::fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                let rel = if prefix.is_empty() {
+                    entry.file_name().to_string_lossy().to_string()
+                } else {
+                    format!("{}/{}", prefix, entry.file_name().to_string_lossy())
+                };
+                if path.is_dir() {
+                    walk_dir(&path, &rel, assets);
+                } else {
+                    assets.push(format!("/{}", rel));
+                }
+            }
+        }
+    }
+    walk_dir(dist_dir, "", &mut assets);
+    let _ = std::fs::write(
+        dist_dir.join("asset-manifest.json"),
+        serde_json::to_string_pretty(&assets).unwrap_or_default(),
     );
 }
 
