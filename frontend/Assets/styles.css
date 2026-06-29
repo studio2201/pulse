@@ -873,6 +873,7 @@
 }
 
 .font-btn.pause-btn {
-    min-width: 60px;
+    width: 65px !important;
     text-align: center;
+    box-sizing: border-box;
 }

@@ -28,7 +28,7 @@
         # 1. Build the WASM frontend
         frontend = rustPlatform.buildRustPackage {
           pname = "pulse-frontend";
-          version = "1.1.8";
+          version = "1.1.9";
           src = ./.;
 
           cargoLock = {
@@ -63,7 +63,7 @@
         # 2. Build the Axum backend
         backend = rustPlatform.buildRustPackage {
           pname = "pulse-backend";
-          version = "1.1.8";
+          version = "1.1.9";
           src = ./.;
 
           cargoLock = {
