@@ -39,13 +39,13 @@ impl App {
                         <div class="login-icon-frame">
                             <img src="/favicon.svg" class="login-app-icon" alt="Pulse" />
                         </div>
-                        <h2>{"PULSE DETECTOR"}</h2>
-                        <p>{"ENTER SECURITY PIN TO ACCESS VISOR HUD"}</p>
+                        <h2>{ &self.site_title }</h2>
+                        <p>{"Enter security PIN to access metrics dashboard"}</p>
                     </div>
 
                     {error_html}
 
-                    <div class="login-dots-wrapper">
+                    <div class="login-pin-display">
                         {pin_display}
                     </div>
 
@@ -65,97 +65,126 @@ impl App {
     }
 
     pub fn view_hud(&self, ctx: &Context<Self>) -> Html {
-        let stats = match &self.stats {
-            Some(s) => s,
-            None => {
-                return html! {
-                    <div class="hud-loading-frame" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; width: 100%; height: 100%;">
-                        <div class="hud-spinner"></div>
-                        <p style="font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; letter-spacing: 2px;">{"ACQUIRING HOST TELEMETRY..."}</p>
-                        <div style="margin-top: 1.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: #00ffcc; text-align: left; width: 90%; max-width: 600px; max-height: 250px; overflow-y: auto; border: 1px solid rgba(0, 255, 204, 0.3); padding: 1rem; background: rgba(0,10,10,0.85); box-shadow: 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 8px;">
-                            <div style="border-bottom: 1px solid rgba(0, 255, 204, 0.2); padding-bottom: 0.5rem; margin-bottom: 0.5rem; font-weight: bold; text-transform: uppercase;">{"Visor System Diagnostic Console"}</div>
-                            {for self.terminal_logs.iter().rev().take(10).map(|log| html! {
-                                <div style="margin-bottom: 0.25rem; line-height: 1.3; font-family: monospace;">{log}</div>
-                            })}
-                        </div>
-                    </div>
-                };
+        let uptime_str = if let Some(stats) = &self.stats {
+            let uptime_hours = stats.uptime as f32 / 3600.0;
+            if uptime_hours >= 24.0 {
+                format!("{:.1} Days", uptime_hours / 24.0)
+            } else {
+                format!("{:.1} Hours", uptime_hours)
             }
-        };
-
-        let cpu_subtitle = format!("{} Threads", stats.cpu_cores.len());
-        let ram_used_gb = stats.ram_used as f32 / 1024.0 / 1024.0 / 1024.0;
-        let ram_total_gb = stats.ram_total as f32 / 1024.0 / 1024.0 / 1024.0;
-        let ram_percent = (stats.ram_used as f32 / stats.ram_total as f32 * 100.0).min(100.0).max(0.0);
-        let ram_subtitle = format!("{:.1} / {:.1} GB", ram_used_gb, ram_total_gb);
-
-        let uptime_hours = stats.uptime as f32 / 3600.0;
-        let uptime_str = if uptime_hours >= 24.0 {
-            format!("{:.1} Days", uptime_hours / 24.0)
         } else {
-            format!("{:.1} Hours", uptime_hours)
+            "--".to_string()
         };
 
         html! {
             <div class="hud-visor-container">
                 <div class="hud-visor-grid">
-                    { self.render_radial_gauge("CPU", stats.cpu_global, &cpu_subtitle) }
-                    { self.render_radial_gauge("RAM", ram_percent, &ram_subtitle) }
-
-                    <div class="hud-metric-card network-card">
-                        <h3>{"NETWORK TELEMETRY"}</h3>
-                        <div class="net-grid">
-                            <div class="net-row">
-                                <span class="net-label">{"RX (IN)"}</span>
-                                <span class="net-value upload-glow">{self.format_bytes(stats.net_in)}</span>
-                            </div>
-                            <div class="net-row">
-                                <span class="net-label">{"TX (OUT)"}</span>
-                                <span class="net-value download-glow">{self.format_bytes(stats.net_out)}</span>
-                            </div>
-                        </div>
-                        <div class="net-radar-container">
-                            <div class="net-radar-circle"></div>
-                            <div class="net-radar-sweep"></div>
-                        </div>
-                    </div>
-
-                    <div class="hud-metric-card gpu-card">
-                        <h3>{"AUXILIARY CORE (GPU)"}</h3>
-                        {if let Some(gpu) = &stats.gpu {
-                            let mem_used_gb = gpu.mem_used.unwrap_or(0) as f32 / 1024.0 / 1024.0 / 1024.0;
-                            let mem_total_gb = gpu.mem_total.unwrap_or(0) as f32 / 1024.0 / 1024.0 / 1024.0;
+                    // CPU Card
+                    <div class="hud-metric-card">
+                        <h3>{"CPU USAGE"}</h3>
+                        {if let Some(stats) = &self.stats {
                             html! {
-                                <div class="gpu-details">
-                                    <div class="gpu-name">{&gpu.name}</div>
-                                    <div class="gpu-bar-frame">
-                                        <div class="gpu-bar-fill" style={format!("width: {}%;", gpu.usage)}></div>
+                                <div class="card-metric-block">
+                                    <div class="card-main-val">{format!("{:.1}%", stats.cpu_global)}</div>
+                                    <div class="card-subtext">{format!("{} Threads", stats.cpu_cores.len())}</div>
+                                    <div class="hud-bar-frame">
+                                        <div class="hud-bar-fill" style={format!("width: {}%;", stats.cpu_global)}></div>
                                     </div>
-                                    <div class="gpu-metrics">
-                                        <span>{format!("LOAD: {:.0}%", gpu.usage)}</span>
-                                        <span>{format!("TEMP: {}°C", gpu.temp.unwrap_or(0.0))}</span>
-                                    </div>
-                                    {if gpu.mem_total.is_some() {
-                                        html! { <div class="gpu-mem">{format!("VRAM: {:.2} / {:.2} GB", mem_used_gb, mem_total_gb)}</div> }
-                                    } else {
-                                        html! {}
-                                    }}
                                 </div>
                             }
                         } else {
+                            html! { <div class="card-loading">{"Loading..."}</div> }
+                        }}
+                    </div>
+
+                    // RAM Card
+                    <div class="hud-metric-card">
+                        <h3>{"MEMORY"}</h3>
+                        {if let Some(stats) = &self.stats {
+                            let ram_used_gb = stats.ram_used as f32 / 1024.0 / 1024.0 / 1024.0;
+                            let ram_total_gb = stats.ram_total as f32 / 1024.0 / 1024.0 / 1024.0;
+                            let ram_percent = (stats.ram_used as f32 / stats.ram_total as f32 * 100.0).min(100.0).max(0.0);
                             html! {
-                                <div class="gpu-offline">
-                                    <div class="offline-indicator"></div>
-                                    <p>{"NO ACTIVE HARDWARE DETECTED"}</p>
+                                <div class="card-metric-block">
+                                    <div class="card-main-val">{format!("{:.1} / {:.1} GB", ram_used_gb, ram_total_gb)}</div>
+                                    <div class="card-subtext">{format!("{:.1}% Used", ram_percent)}</div>
+                                    <div class="hud-bar-frame">
+                                        <div class="hud-bar-fill" style={format!("width: {}%;", ram_percent)}></div>
+                                    </div>
                                 </div>
                             }
+                        } else {
+                            html! { <div class="card-loading">{"Loading..."}</div> }
+                        }}
+                    </div>
+
+                    // Network Card
+                    <div class="hud-metric-card">
+                        <h3>{"NETWORK I/O"}</h3>
+                        {if let Some(stats) = &self.stats {
+                            html! {
+                                <div class="card-metric-block">
+                                    <div class="card-main-val download-glow">{format!("↓ {}", self.format_bytes(stats.net_in))}</div>
+                                    <div class="card-subtext upload-glow">{format!("↑ {}", self.format_bytes(stats.net_out))}</div>
+                                </div>
+                            }
+                        } else {
+                            html! { <div class="card-loading">{"Loading..."}</div> }
+                        }}
+                    </div>
+
+                    // Storage Card
+                    <div class="hud-metric-card">
+                        <h3>{"DISK STORAGE"}</h3>
+                        {if let Some(stats) = &self.stats {
+                            let disk_used_gb = stats.disk_used as f32 / 1024.0 / 1024.0 / 1024.0;
+                            let disk_total_gb = stats.disk_total as f32 / 1024.0 / 1024.0 / 1024.0;
+                            let disk_percent = (stats.disk_used as f32 / stats.disk_total as f32 * 100.0).min(100.0).max(0.0);
+                            html! {
+                                <div class="card-metric-block">
+                                    <div class="card-main-val">{format!("{:.1} / {:.1} GB", disk_used_gb, disk_total_gb)}</div>
+                                    <div class="card-subtext">{format!("{:.1}% Used", disk_percent)}</div>
+                                    <div class="hud-bar-frame">
+                                        <div class="hud-bar-fill" style={format!("width: {}%;", disk_percent)}></div>
+                                    </div>
+                                </div>
+                            }
+                        } else {
+                            html! { <div class="card-loading">{"Loading..."}</div> }
+                        }}
+                    </div>
+
+                    // GPU Card
+                    <div class="hud-metric-card">
+                        <h3>{"GPU USAGE"}</h3>
+                        {if let Some(stats) = &self.stats {
+                            if let Some(gpu) = &stats.gpu {
+                                html! {
+                                    <div class="card-metric-block">
+                                        <div class="card-main-val">{format!("{:.0}%", gpu.usage)}</div>
+                                        <div class="card-subtext" title={gpu.name.clone()}>{&gpu.name}</div>
+                                        <div class="hud-bar-frame">
+                                            <div class="hud-bar-fill" style={format!("width: {}%;", gpu.usage)}></div>
+                                        </div>
+                                    </div>
+                                }
+                            } else {
+                                html! {
+                                    <div class="card-metric-block">
+                                        <div class="card-main-val" style="color: var(--text-muted); font-size: 1.5rem;">{"OFFLINE"}</div>
+                                        <div class="card-subtext">{"No Active GPU"}</div>
+                                    </div>
+                                }
+                            }
+                        } else {
+                            html! { <div class="card-loading">{"Loading..."}</div> }
                         }}
                     </div>
                 </div>
 
                 <div class="hud-console-wrapper">
                     <div class="hud-console-header">
-                        <span>{"AURA MONITOR TERMINAL"}</span>
+                        <span>{"CONSOLE MONITOR TERMINAL"}</span>
                         <div class="hud-console-controls">
                             <span>{format!("Uptime: {}", uptime_str)}</span>
                             <button onclick={ctx.link().callback(|_| Msg::ClearTerminal)}>{"CLEAR"}</button>
@@ -180,37 +209,13 @@ impl App {
         }
     }
 
-    fn render_radial_gauge(&self, label: &str, percentage: f32, subtitle: &str) -> Html {
-        let r = 70.0;
-        let circumference = 2.0 * std::f32::consts::PI * r;
-        let stroke_offset = circumference * (1.0 - (percentage.min(100.0).max(0.0) / 100.0));
-        html! {
-            <div class="hud-gauge-card">
-                <svg width="180" height="180" viewBox="0 0 180 180" class="hud-svg-gauge">
-                    <circle cx="90" cy="90" r="85" class="hud-gauge-outer-ring" />
-                    <circle cx="90" cy="90" r="70" class="hud-gauge-track" />
-                    <circle cx="90" cy="90" r="70" class="hud-gauge-fill"
-                        stroke-dasharray={circumference.to_string()}
-                        stroke-dashoffset={stroke_offset.to_string()}
-                        transform="rotate(-90 90 90)"
-                    />
-                    <text x="90" y="85" text-anchor="middle" class="hud-gauge-percent">
-                        {format!("{:.0}%", percentage)}
-                    </text>
-                    <text x="90" y="115" text-anchor="middle" class="hud-gauge-label">
-                        {label}
-                    </text>
-                </svg>
-                <div class="hud-gauge-sub">{subtitle}</div>
-            </div>
-        }
-    }
-
     fn format_bytes(&self, bytes: u64) -> String {
         if bytes >= 1024 * 1024 {
             format!("{:.2} MB/s", bytes as f64 / 1024.0 / 1024.0)
-        } else {
+        } else if bytes >= 1024 {
             format!("{:.1} KB/s", bytes as f64 / 1024.0)
+        } else {
+            format!("{} B/s", bytes)
         }
     }
 }

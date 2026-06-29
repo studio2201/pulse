@@ -14,6 +14,8 @@ pub struct SystemStats {
     pub ram_total: u64,
     pub net_in: u64,
     pub net_out: u64,
+    pub disk_used: u64,
+    pub disk_total: u64,
     pub gpu: Option<GpuStats>,
     pub uptime: u64,
 }
@@ -72,6 +74,17 @@ impl SystemMonitor {
             let net_in = (total_in as f32 / duration_secs) as u64;
             let net_out = (total_out as f32 / duration_secs) as u64;
 
+            // Calculate Disk usage
+            let disks = sysinfo::Disks::new_with_refreshed_list();
+            let mut total_space = 0;
+            let mut total_available = 0;
+            for disk in &disks {
+                total_space += disk.total_space();
+                total_available += disk.available_space();
+            }
+            let disk_total = total_space;
+            let disk_used = total_space - total_available;
+
             // Fetch GPU stats
             let gpu = gpu::get_gpu_stats();
 
@@ -85,6 +98,8 @@ impl SystemMonitor {
                 ram_total,
                 net_in,
                 net_out,
+                disk_used,
+                disk_total,
                 gpu,
                 uptime,
             };

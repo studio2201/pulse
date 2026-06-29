@@ -579,78 +579,21 @@
 
 .hud-visor-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 1.5rem;
+    width: 100%;
 }
 
-.hud-gauge-card {
-    background: var(--container);
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(10px);
-    transition: var(--transition);
+@media (max-width: 1024px) {
+    .hud-visor-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
-.hud-gauge-card:hover {
-    border-color: var(--primary);
-    box-shadow: 0 0 20px var(--primary-glow);
-}
-
-.hud-svg-gauge {
-    filter: drop-shadow(0 0 8px var(--primary-glow));
-}
-
-.hud-gauge-outer-ring {
-    fill: none;
-    stroke: var(--border);
-    stroke-width: 2;
-    stroke-dasharray: 4 8;
-    animation: spin 20s linear infinite;
-    transform-origin: 90px 90px;
-}
-
-.hud-gauge-track {
-    fill: none;
-    stroke: var(--border);
-    stroke-width: 10;
-}
-
-.hud-gauge-fill {
-    fill: none;
-    stroke: var(--primary);
-    stroke-width: 10;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.8s ease-in-out;
-}
-
-.hud-gauge-percent {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 2.2rem;
-    font-weight: 800;
-    fill: var(--text);
-    text-shadow: 0 0 10px var(--primary-glow);
-}
-
-.hud-gauge-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.9rem;
-    font-weight: 600;
-    fill: var(--text-secondary);
-    letter-spacing: 2px;
-}
-
-.hud-gauge-sub {
-    margin-top: 1rem;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.95rem;
-    color: var(--text);
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+@media (max-width: 640px) {
+    .hud-visor-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .hud-metric-card {
@@ -673,7 +616,7 @@
 
 .hud-metric-card h3 {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin: 0;
     color: var(--text-secondary);
     letter-spacing: 2px;
@@ -681,141 +624,64 @@
     padding-bottom: 0.5rem;
 }
 
-.net-grid {
+.card-metric-block {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    justify-content: center;
     flex-grow: 1;
 }
 
-.net-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'Share Tech Mono', monospace;
-}
-
-.net-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.net-value {
-    font-size: 1.2rem;
+.card-main-val {
+    font-size: 1.75rem;
     font-weight: 700;
-    color: var(--text);
-}
-
-.upload-glow {
-    text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-}
-
-.download-glow {
-    text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-}
-
-.net-radar-container {
-    height: 60px;
-    position: relative;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.net-radar-circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
-    border: 1px dashed var(--primary);
-    border-radius: 50%;
-    opacity: 0.3;
-}
-
-.net-radar-sweep {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0) 0%, var(--primary-glow) 50%, rgba(59, 130, 246, 0) 100%);
-    animation: radar-sweep 3s linear infinite;
-}
-
-@keyframes radar-sweep {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-.gpu-details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
+    color: var(--primary);
     font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 0 10px var(--primary-glow);
 }
 
-.gpu-name {
-    font-size: 1rem;
-    color: var(--text);
+.card-subtext {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.gpu-bar-frame {
-    height: 12px;
-    background: var(--border);
-    border-radius: 6px;
+.hud-bar-frame {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
     overflow: hidden;
 }
 
-.gpu-bar-fill {
+.hud-bar-fill {
     height: 100%;
     background: var(--primary);
-    box-shadow: 0 0 10px var(--primary);
-    transition: width 0.8s ease-in-out;
+    border-radius: 3px;
+    box-shadow: 0 0 8px var(--primary);
+    transition: width 0.5s ease-out;
 }
 
-.gpu-metrics {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.95rem;
+.card-loading {
+    font-size: 1rem;
     color: var(--text-secondary);
-}
-
-.gpu-mem {
-    font-size: 0.95rem;
-    color: var(--text);
-    text-align: right;
-}
-
-.gpu-offline {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    padding: 1.5rem 0;
     font-family: 'Share Tech Mono', monospace;
-    color: var(--text-secondary);
-    gap: 0.8rem;
+    font-style: italic;
+    padding: 1rem 0;
 }
 
-.offline-indicator {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #ef4444;
-    box-shadow: 0 0 10px #ef4444;
-    animation: blink-red 2s infinite;
+.upload-glow {
+    color: var(--warning-text) !important;
 }
 
-@keyframes blink-red {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
+.download-glow {
+    color: var(--primary) !important;
 }
 
 /* Aura Terminal Drawer */

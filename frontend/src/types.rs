@@ -17,6 +17,8 @@ pub struct SystemStats {
     pub ram_total: u64,
     pub net_in: u64,
     pub net_out: u64,
+    pub disk_used: u64,
+    pub disk_total: u64,
     pub gpu: Option<GpuStats>,
     pub uptime: u64,
 }

@@ -73,7 +73,7 @@ impl Component for App {
             error_message: None,
             stats: None,
             ws: None,
-            terminal_logs: vec!["[SYSTEM] Initializing Samus Visor HUD...".to_string()],
+            terminal_logs: vec!["[SYSTEM] Initializing metrics dashboard...".to_string()],
             terminal_open: true,
             enable_translation: false,
             enable_themes: true,
