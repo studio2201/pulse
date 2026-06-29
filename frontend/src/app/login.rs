@@ -15,15 +15,12 @@ impl App {
             <div class="login-container">
                 <div class="login-box">
                     <div class="login-header">
-                        <div class="login-icon-frame" style="display: flex; justify-content: center; margin-bottom: 1rem;">
-                            <img src="/favicon.svg" class="login-app-icon" alt="Pulse" style="width: 64px; height: 64px;" />
-                        </div>
                         <h2>
                             {
                                 if is_locked {
                                     "TOO MANY ATTEMPTS"
                                 } else {
-                                    "ENTER SECURITY PIN"
+                                    "ENTER PIN"
                                 }
                             }
                         </h2>
