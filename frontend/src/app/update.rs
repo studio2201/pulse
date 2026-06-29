@@ -93,7 +93,6 @@ impl App {
             }
             Msg::UpdateStats(stats) => {
                 self.terminal_logs = stats.sys_logs.clone();
-                self.active_notification = None;
 
                 // Update history vectors
                 self.cpu_history.push(stats.cpu_global);
@@ -122,6 +121,36 @@ impl App {
                     if self.gpu_histories[idx].len() > 15 {
                         self.gpu_histories[idx].remove(0);
                     }
+                }
+
+                // Check alert thresholds for built-in footer status
+                let mut warning = None;
+                if stats.cpu_global > 95.0 {
+                    warning = Some((format!("CPU Load High: {:.0}%", stats.cpu_global), "warning".to_string()));
+                } else if ram_percent > 90.0 {
+                    warning = Some((format!("RAM Space Low: {:.0}%", ram_percent), "warning".to_string()));
+                } else if disk_percent > 90.0 {
+                    warning = Some((format!("Disk Space Low: {:.0}%", disk_percent), "warning".to_string()));
+                } else {
+                    for (idx, gpu) in stats.gpus.iter().enumerate() {
+                        if gpu.usage > 95.0 {
+                            warning = Some((format!("GPU {} Load High: {:.0}%", idx + 1, gpu.usage), "warning".to_string()));
+                            break;
+                        }
+                        if let Some(temp) = gpu.temp {
+                            if temp > 85.0 {
+                                warning = Some((format!("GPU {} Temp High: {:.0}°C", idx + 1, temp), "warning".to_string()));
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if let Some(warn) = warning {
+                    self.active_notification = Some(warn);
+                } else if self.active_notification.as_ref().map(|(_, cls)| cls == "warning" || cls == "success").unwrap_or(true) {
+                    // Revert to default Ready status if warnings cleared
+                    self.active_notification = None;
                 }
 
                 self.stats = Some(stats);
