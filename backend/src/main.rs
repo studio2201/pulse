@@ -124,6 +124,7 @@ async fn main() {
         .nest("/api", api_routes)
         .route("/config", get(serve_config))
         .route("/health", get(health_check))
+        .route("/service-worker.js", get(serve_service_worker))
         .fallback_service(ServeDir::new("frontend/dist"))
         .layer(middleware::from_fn_with_state(
             TitleState(server_config.clone()),
@@ -263,4 +264,16 @@ async fn fix_content_length_middleware(
     }
 
     response
+}
+
+async fn serve_service_worker() -> impl axum::response::IntoResponse {
+    let content = std::fs::read_to_string("frontend/dist/service-worker.js").unwrap_or_default();
+    (
+        [
+            (axum::http::header::CONTENT_TYPE, "application/javascript"),
+            (axum::http::header::CACHE_CONTROL, "no-cache, no-store, must-revalidate"),
+            (axum::http::header::EXPIRES, "0"),
+        ],
+        content,
+    )
 }
