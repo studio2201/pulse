@@ -111,9 +111,18 @@ impl App {
                 self.net_history.push(net_total);
                 if self.net_history.len() > 15 { self.net_history.remove(0); }
 
-                let gpu_val = stats.gpu.as_ref().map(|g| g.usage).unwrap_or(0.0);
-                self.gpu_history.push(gpu_val);
-                if self.gpu_history.len() > 15 { self.gpu_history.remove(0); }
+                while self.gpu_histories.len() < stats.gpus.len() {
+                    self.gpu_histories.push(Vec::new());
+                }
+                while self.gpu_histories.len() > stats.gpus.len() {
+                    self.gpu_histories.pop();
+                }
+                for (idx, gpu) in stats.gpus.iter().enumerate() {
+                    self.gpu_histories[idx].push(gpu.usage);
+                    if self.gpu_histories[idx].len() > 15 {
+                        self.gpu_histories[idx].remove(0);
+                    }
+                }
 
                 self.stats = Some(stats);
                 true

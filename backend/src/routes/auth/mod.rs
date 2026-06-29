@@ -18,7 +18,7 @@ use shared_backend::server::get_client_ip;
 use std::net::SocketAddr;
 use std::time::Duration;
 
-pub const COOKIE_NAME: &str = "PULSE_PIN";
+pub const COOKIE_NAME: &str = "pin";
 
 #[derive(serde::Deserialize)]
 pub struct VerifyPinPayload {

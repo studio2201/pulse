@@ -16,7 +16,7 @@ pub struct SystemStats {
     pub net_out: u64,
     pub disk_used: u64,
     pub disk_total: u64,
-    pub gpu: Option<GpuStats>,
+    pub gpus: Vec<GpuStats>,
     pub uptime: u64,
     pub hostname: String,
     pub sys_logs: Vec<String>,
@@ -88,7 +88,7 @@ impl SystemMonitor {
             let disk_used = total_space - total_available;
 
             // Fetch GPU stats
-            let gpu = gpu::get_gpu_stats();
+            let gpus = gpu::get_gpu_stats();
 
             // System Uptime (associated function in sysinfo)
             let uptime = System::uptime();
@@ -108,7 +108,7 @@ impl SystemMonitor {
                 net_out,
                 disk_used,
                 disk_total,
-                gpu,
+                gpus,
                 uptime,
                 hostname,
                 sys_logs,

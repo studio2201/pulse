@@ -1,6 +1,6 @@
 [package]
 name = "pulse-frontend"
-version = "1.0.4"
+version = "1.0.6"
 edition = "2024"
 authors = ["UberMetroid <admin@ubermetroid.com>"]
 license = "Apache-2.0"

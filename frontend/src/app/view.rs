@@ -129,39 +129,53 @@ impl App {
                         }}
                     </div>
 
-                    // GPU Card
-                    <div class="hud-metric-card">
-                        <h3>{"GPU"}</h3>
-                        {if let Some(stats) = &self.stats {
-                            if let Some(gpu) = &stats.gpu {
-                                html! {
-                                    <div class="card-metric-block">
-                                        <div class="card-main-val">{format!("{:.0}%", gpu.usage)}</div>
-                                        <div class="card-subtext" title={gpu.name.clone()}>{&gpu.name}</div>
-                                        <div class="hud-bar-frame">
-                                            <div class="hud-bar-fill" style={format!("width: {}%;", gpu.usage)}></div>
-                                        </div>
-                                        { self.render_sparkline(&self.gpu_history, 100.0) }
-                                    </div>
-                                }
-                            } else {
-                                html! {
+                    // GPU Card(s)
+                    {if let Some(stats) = &self.stats {
+                        if stats.gpus.is_empty() {
+                            html! {
+                                <div class="hud-metric-card">
+                                    <h3>{"GPU"}</h3>
                                     <div class="card-metric-block">
                                         <div class="card-main-val" style="color: var(--text-muted); font-size: 1.5rem;">{"OFFLINE"}</div>
                                         <div class="card-subtext">{"No Active GPU"}</div>
-                                        { self.render_sparkline(&self.gpu_history, 100.0) }
+                                        { self.render_sparkline(&[], 100.0) }
                                     </div>
-                                }
-                            }
-                        } else {
-                            html! {
-                                <div class="card-metric-block">
-                                    <div class="card-loading">{"Connecting..."}</div>
-                                    { self.render_sparkline(&self.gpu_history, 100.0) }
                                 </div>
                             }
-                        }}
-                    </div>
+                        } else {
+                            stats.gpus.iter().enumerate().map(|(idx, gpu)| {
+                                let history = self.gpu_histories.get(idx).map(|h| h.as_slice()).unwrap_or(&[]);
+                                let card_title = if stats.gpus.len() > 1 {
+                                    format!("GPU {}", idx + 1)
+                                } else {
+                                    "GPU".to_string()
+                                };
+                                html! {
+                                    <div class="hud-metric-card" key={idx}>
+                                        <h3>{card_title}</h3>
+                                        <div class="card-metric-block">
+                                            <div class="card-main-val">{format!("{:.0}%", gpu.usage)}</div>
+                                            <div class="card-subtext" title={gpu.name.clone()}>{&gpu.name}</div>
+                                            <div class="hud-bar-frame">
+                                                <div class="hud-bar-fill" style={format!("width: {}%;", gpu.usage)}></div>
+                                            </div>
+                                            { self.render_sparkline(history, 100.0) }
+                                        </div>
+                                    </div>
+                                }
+                            }).collect::<Html>()
+                        }
+                    } else {
+                        html! {
+                            <div class="hud-metric-card">
+                                <h3>{"GPU"}</h3>
+                                <div class="card-metric-block">
+                                    <div class="card-loading">{"Connecting..."}</div>
+                                    { self.render_sparkline(&[], 100.0) }
+                                </div>
+                            </div>
+                        }
+                    }}
                 </div>
 
                 <div class="hud-console-wrapper">

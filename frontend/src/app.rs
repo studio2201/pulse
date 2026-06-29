@@ -47,7 +47,7 @@ pub struct App {
     pub ram_history: Vec<f32>,
     pub disk_history: Vec<f32>,
     pub net_history: Vec<f32>,
-    pub gpu_history: Vec<f32>,
+    pub gpu_histories: Vec<Vec<f32>>,
     pub active_notification: Option<(String, String)>,
 }
 
@@ -97,7 +97,7 @@ impl Component for App {
             ram_history: Vec::new(),
             disk_history: Vec::new(),
             net_history: Vec::new(),
-            gpu_history: Vec::new(),
+            gpu_histories: Vec::new(),
             active_notification: None,
         }
     }
