@@ -124,8 +124,18 @@ impl App {
                 self.ws = None; // Reset so reconnect attempts are allowed
                 let link = ctx.link().clone();
                 Timeout::new(5000, move || {
-                    link.send_message(Msg::SubmitPin);
+                    link.send_message(Msg::Reconnect);
                 }).forget();
+                true
+            }
+            Msg::WsLog(msg) => {
+                self.terminal_logs.push(msg);
+                true
+            }
+            Msg::Reconnect => {
+                if self.is_authenticated {
+                    self.connect_ws(ctx);
+                }
                 true
             }
             Msg::ToggleTheme => {

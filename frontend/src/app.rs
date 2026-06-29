@@ -20,6 +20,8 @@ pub enum Msg {
     Logout,
     UpdateStats(SystemStats),
     WsError(String),
+    WsLog(String),
+    Reconnect,
     ToggleTheme,
     ChangeLanguage(Language),
     ClearTerminal,

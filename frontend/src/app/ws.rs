@@ -39,7 +39,7 @@ impl App {
         let link = ctx.link().clone();
         let onopen_callback = Closure::<dyn FnMut()>::new(move || {
             web_sys::console::log_1(&JsValue::from_str("[WS] Connection opened successfully."));
-            link.send_message(Msg::WsError("[WS] Connection established. Dashboard online.".to_string()));
+            link.send_message(Msg::WsLog("[WS] Connection established. Dashboard online.".to_string()));
         });
         ws.set_onopen(Some(onopen_callback.as_ref().unchecked_ref()));
         onopen_callback.forget();
