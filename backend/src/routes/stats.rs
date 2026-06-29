@@ -5,7 +5,7 @@ use axum::{
     response::IntoResponse,
 };
 use std::time::Duration;
-use tracing::error;
+
 
 use crate::state::AppState;
 use crate::routes::auth::is_authenticated;
@@ -40,6 +40,7 @@ pub async fn handle_ws_stats(
 }
 
 async fn handle_ws_connection(mut socket: WebSocket, state: AppState) {
+    tracing::info!("New WebSocket connection established!");
     let interval_secs = state.config.refresh_interval;
     let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
 
@@ -55,15 +56,18 @@ async fn handle_ws_connection(mut socket: WebSocket, state: AppState) {
             let json_str = match serde_json::to_string(&stats) {
                 Ok(s) => s,
                 Err(e) => {
-                    error!("Failed to serialize stats: {:?}", e);
+                    tracing::error!("Failed to serialize stats: {:?}", e);
                     continue;
                 }
             };
-
-            if socket.send(Message::Text(json_str.into())).await.is_err() {
-                // Connection closed
+            tracing::debug!("Sending stats payload to WebSocket client");
+            if let Err(e) = socket.send(Message::Text(json_str.into())).await {
+                tracing::error!("WebSocket send error: {:?}", e);
                 break;
             }
+        } else {
+            tracing::warn!("shared_stats is None, skipping WebSocket push");
         }
     }
+    tracing::info!("WebSocket connection closed.");
 }

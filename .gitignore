@@ -31,3 +31,6 @@ Thumbs.db
 # Nix build artifacts
 result
 result-*
+
+# Dynamic frontend assets
+frontend/Assets/shared-assets/
