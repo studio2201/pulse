@@ -1,0 +1,47 @@
+[package]
+name = "pulse-frontend"
+version = "3.0.0"
+edition = "2024"
+authors = ["UberMetroid <admin@ubermetroid.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/UberMetroid/pulse"
+homepage = "https://github.com/UberMetroid/pulse"
+description = "Yew frontend application for Pulse."
+readme = "../README.md"
+
+[dependencies]
+yew = { version = "0.23", features = ["csr"] }
+wasm-bindgen = "=0.2.121"
+wasm-bindgen-futures = "=0.4.71"
+js-sys = "=0.3.98"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+gloo-net = "0.7"
+gloo-utils = "0.3"
+gloo-timers = { version = "0.4", features = ["futures"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "serde", "clock"] }
+shared-frontend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.3" }
+shared-core = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.3" }
+
+[dependencies.web-sys]
+version = "=0.3.98"
+features = [
+  "Element",
+  "HtmlElement",
+  "HtmlInputElement",
+  "HtmlButtonElement",
+  "HtmlSelectElement",
+  "Window",
+  "Document",
+  "Event",
+  "InputEvent",
+  "MouseEvent",
+  "KeyboardEvent",
+  "FocusEvent",
+  "Location",
+  "Navigator",
+  "Storage",
+  "Headers",
+  "Response",
+  "MediaQueryList"
+]

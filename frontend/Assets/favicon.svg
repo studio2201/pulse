@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<style type="text/css">
+	.st0{opacity:0.2;fill:#e05d44;enable-background:new;}
+	.st1{fill:#e05d44;}
+	.st2{fill:none;stroke:#e05d44;stroke-width:24;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+<circle class="st0" cx="256" cy="256" r="232.7"/>
+<path class="st1" d="M256,0C114.8,0,0,114.8,0,256s114.8,256,256,256s256-114.8,256-256S397.2,0,256,0z M256,465.6 c-115.5,0-209.5-94-209.5-209.5S140.5,46.6,256,46.6s209.5,93.9,209.5,209.5C465.5,371.6,371.5,465.6,256,465.6z"/>
+<path class="st2" d="M110,256h60l20-40l20,80l25-170l30,260l25-130h112"/>
+</svg>

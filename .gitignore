@@ -1,0 +1,33 @@
+# Rust build artifacts
+target/
+**/target/
+
+# Trunk build artifacts
+dist/
+frontend/dist/
+frontend/target/
+
+# Local configuration
+.env
+.env.local
+.env.*.local
+
+# Local databases and user data
+data/
+uploads/
+local_uploads/
+
+# IDE/Editor config
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Nix build artifacts
+result
+result-*

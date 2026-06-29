@@ -1,0 +1,24 @@
+services:
+  pulse:
+    image: ubermetroid/pulse:latest
+    container_name: pulse
+    restart: unless-stopped
+    ports:
+      - ${PORT:-4406}:4406
+    volumes:
+      - ${PULSE_DATA_PATH:-./data}:/app/data
+      # Optional: bind-mount host proc for accurate metrics inside docker
+      - /proc:/host/proc:ro
+      # Optional: pass through sysfs for AMD/Intel GPU detection
+      - /sys:/sys:ro
+    environment:
+      PORT: 4406
+      SITE_TITLE: ${PULSE_SITE_TITLE:-Pulse}
+      PULSE_PIN: ${PULSE_PIN:-}
+      BASE_URL: ${PULSE_BASE_URL:-http://localhost:4406}
+      ALLOWED_ORIGINS: ${PULSE_ALLOWED_ORIGINS:-*}
+      TZ: ${TZ:-UTC}
+      ENABLE_TRANSLATION: ${ENABLE_TRANSLATION:-false}
+      ENABLE_THEMES: ${ENABLE_THEMES:-true}
+      MAX_ATTEMPTS: ${MAX_ATTEMPTS:-5}
+      PULSE_REFRESH_INTERVAL: ${PULSE_REFRESH_INTERVAL:-2}

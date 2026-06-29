@@ -1,0 +1,28 @@
+[workspace]
+resolver = "2"
+members = [
+    "backend",
+    "frontend"
+]
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+similar_names = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+
+[profile.release]
+opt-level = 3          # Optimize for maximum speed
+lto = true             # Enable Link-Time Optimization
+codegen-units = 1      # Reduce parallel codegen for better optimizations
+panic = "abort"        # Disable unwinding for smaller binary sizes
+strip = true           # Strip all symbols and debug info
+
+[profile.release.package.frontend]
+opt-level = "z"        # Specifically optimize the frontend WASM for size
