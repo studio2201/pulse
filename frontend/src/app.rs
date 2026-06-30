@@ -128,7 +128,7 @@ impl Component for App {
             monitor_storage: true,
             monitor_network: true,
             monitor_gpu: true,
-            monitor_console: true,
+            monitor_console: false,
             console_paused: false,
         }
     }

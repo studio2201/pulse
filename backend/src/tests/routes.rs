@@ -36,7 +36,7 @@ fn test_state(pin: Option<String>) -> AppState {
             monitor_storage: true,
             monitor_network: true,
             monitor_gpu: true,
-            monitor_console: true,
+            monitor_console: false,
         },
         Arc::new(RwLock::new(None)),
     )

@@ -136,8 +136,8 @@ impl AppConfig {
             .unwrap_or(true);
 
         let monitor_console = std::env::var("PULSE_MONITOR_CONSOLE")
-            .map(|v| v != "false" && v != "off")
-            .unwrap_or(true);
+            .map(|v| v == "true" || v == "on")
+            .unwrap_or(false);
 
         Self {
             port,
