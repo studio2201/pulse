@@ -48,8 +48,21 @@ impl SystemMonitor {
             .first()
             .map(|c| c.brand().trim().to_string())
             .unwrap_or_else(|| "Unknown CPU".to_string());
-        let hostname = System::host_name().unwrap_or_else(|| "localhost".to_string());
-        let os_name = System::name().unwrap_or_else(|| "Linux".to_string());
+        let hostname = std::env::var("PULSE_HOSTNAME")
+            .ok()
+            .filter(|s| !s.is_empty())
+            .or_else(|| {
+                std::fs::read_to_string("/etc/host_hostname")
+                    .ok()
+                    .map(|s| s.trim().to_string())
+            })
+            .or_else(|| System::host_name())
+            .unwrap_or_else(|| "localhost".to_string());
+        let os_name = std::env::var("PULSE_OS")
+            .ok()
+            .filter(|s| !s.is_empty())
+            .or_else(|| System::name())
+            .unwrap_or_else(|| "Linux".to_string());
         let os_version = System::os_version().unwrap_or_default();
         let kernel_version = System::kernel_version().unwrap_or_default();
 
