@@ -97,6 +97,7 @@
         dockerImage = pkgs.dockerTools.buildLayeredImage {
           name = "pulse-nix";
           tag = "latest";
+          contents = [ pkgs.intel-gpu-tools ];
           
           # Run under the nobody user (UID 65534)
           config = {
