@@ -209,6 +209,32 @@ impl App {
                 }
                 true
             }
+            Msg::CycleOsOverride => {
+                let next_idx = match self.os_override {
+                    None => Some(0),
+                    Some(idx) => {
+                        if idx >= 6 {
+                            None
+                        } else {
+                            Some(idx + 1)
+                        }
+                    }
+                };
+                self.os_override = next_idx;
+                let notify_text = match next_idx {
+                    None => "OS Logo: Auto-Detect".to_string(),
+                    Some(0) => "OS Logo: NixOS".to_string(),
+                    Some(1) => "OS Logo: Ubuntu".to_string(),
+                    Some(2) => "OS Logo: Debian".to_string(),
+                    Some(3) => "OS Logo: Arch Linux".to_string(),
+                    Some(4) => "OS Logo: Fedora".to_string(),
+                    Some(5) => "OS Logo: Pop!_OS".to_string(),
+                    Some(6) => "OS Logo: Fallback/Tux".to_string(),
+                    _ => "OS Logo: Custom".to_string(),
+                };
+                self.notify(ctx, notify_text);
+                true
+            }
             Msg::CheckFallback => {
                 let ws_connected = self
                     .ws

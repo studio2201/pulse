@@ -33,6 +33,7 @@ pub enum Msg {
     TogglePauseConsole,
     ClearNotification(String),
     ConsoleMouseUp,
+    CycleOsOverride,
 }
 
 pub struct App {
@@ -67,6 +68,7 @@ pub struct App {
     pub monitor_gpu: bool,
     pub monitor_console: bool,
     pub console_paused: bool,
+    pub os_override: Option<usize>,
 }
 
 impl Component for App {
@@ -132,6 +134,7 @@ impl Component for App {
             monitor_gpu: true,
             monitor_console: false,
             console_paused: false,
+            os_override: None,
         }
     }
 
@@ -148,6 +151,23 @@ impl Component for App {
                     link.send_message(Msg::CheckFallback);
                 }
             });
+
+            use wasm_bindgen::JsCast;
+            let link_key = ctx.link().clone();
+            let closure = wasm_bindgen::prelude::Closure::wrap(Box::new(
+                move |event: web_sys::KeyboardEvent| {
+                    if event.key() == "i" || event.key() == "I" {
+                        link_key.send_message(Msg::CycleOsOverride);
+                    }
+                },
+            )
+                as Box<dyn FnMut(web_sys::KeyboardEvent)>);
+
+            let window = web_sys::window().expect("no global `window` exists");
+            window
+                .add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref())
+                .unwrap();
+            closure.forget();
         }
 
         if !self.console_paused {

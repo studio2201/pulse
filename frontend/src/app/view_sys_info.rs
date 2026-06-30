@@ -19,7 +19,19 @@ impl App {
                 }
             };
 
-            let os_ascii = self.get_os_logo(&stats.os_name);
+            let os_name = match self.os_override {
+                None => stats.os_name.clone(),
+                Some(0) => "nixos".to_string(),
+                Some(1) => "ubuntu".to_string(),
+                Some(2) => "debian".to_string(),
+                Some(3) => "arch".to_string(),
+                Some(4) => "fedora".to_string(),
+                Some(5) => "pop".to_string(),
+                Some(6) => "generic".to_string(),
+                _ => "generic".to_string(),
+            };
+
+            let os_ascii = self.get_os_logo(&os_name);
 
             html! {
                 <div class="hud-metric-card sys-info-card" title="System Information">
@@ -32,7 +44,13 @@ impl App {
                             </div>
                             <div class="sys-detail-row">
                                 <span class="sys-detail-label">{"OS:"}</span>
-                                <span class="sys-detail-val">{ format!("{} {}", stats.os_name, stats.os_version).trim().to_string() }</span>
+                                <span class="sys-detail-val">{
+                                    if self.os_override.is_some() {
+                                        os_name.to_uppercase()
+                                    } else {
+                                        format!("{} {}", stats.os_name, stats.os_version).trim().to_string()
+                                    }
+                                }</span>
                             </div>
                             <div class="sys-detail-row">
                                 <span class="sys-detail-label">{"KERNEL:"}</span>
