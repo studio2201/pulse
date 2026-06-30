@@ -10,6 +10,8 @@ use shared_frontend::{Footer, Header, i18n::Language};
 mod login;
 mod update;
 mod view;
+mod view_cards;
+mod view_sys_info;
 mod ws;
 
 pub enum Msg {

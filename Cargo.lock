@@ -1256,7 +1256,7 @@ dependencies = [
 
 [[package]]
 name = "pulse-backend"
-version = "1.3.1"
+version = "1.3.2"
 dependencies = [
  "axum",
  "chrono",
@@ -1278,7 +1278,7 @@ dependencies = [
 
 [[package]]
 name = "pulse-frontend"
-version = "1.3.1"
+version = "1.3.2"
 dependencies = [
  "chrono",
  "gloo-net 0.7.0",
@@ -1647,7 +1647,7 @@ dependencies = [
 [[package]]
 name = "shared-backend"
 version = "3.0.0"
-source = "git+https://github.com/UberMetroid/shared-assets?tag=v3.0.5#8b9062cc35da130435d6cb4cd98a708dbf53a3be"
+source = "git+https://github.com/UberMetroid/shared-assets.git?tag=v3.0.5#8b9062cc35da130435d6cb4cd98a708dbf53a3be"
 dependencies = [
  "anyhow",
  "axum",
@@ -1666,7 +1666,7 @@ dependencies = [
 [[package]]
 name = "shared-core"
 version = "3.0.0"
-source = "git+https://github.com/UberMetroid/shared-assets?tag=v3.0.5#8b9062cc35da130435d6cb4cd98a708dbf53a3be"
+source = "git+https://github.com/UberMetroid/shared-assets.git?tag=v3.0.5#8b9062cc35da130435d6cb4cd98a708dbf53a3be"
 dependencies = [
  "constant_time_eq",
  "serde",
@@ -1675,7 +1675,7 @@ dependencies = [
 [[package]]
 name = "shared-frontend"
 version = "3.0.0"
-source = "git+https://github.com/UberMetroid/shared-assets?tag=v3.0.5#8b9062cc35da130435d6cb4cd98a708dbf53a3be"
+source = "git+https://github.com/UberMetroid/shared-assets.git?tag=v3.0.5#8b9062cc35da130435d6cb4cd98a708dbf53a3be"
 dependencies = [
  "serde",
  "shared-core",
