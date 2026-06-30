@@ -631,6 +631,8 @@
     flex-direction: column;
     gap: 0.4rem;
     transition: var(--transition);
+    height: 145px;
+    box-sizing: border-box;
 }
 
 .hud-metric-card:hover {
@@ -645,6 +647,7 @@
     justify-content: space-between;
     align-items: stretch;
     min-height: 140px;
+    height: auto;
 }
 
 .sys-info-left {
