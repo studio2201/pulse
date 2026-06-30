@@ -3,16 +3,21 @@ use yew::prelude::*;
 
 impl App {
     pub fn view_cpu_card(&self) -> Html {
+        let cpu_brand = self.stats.as_ref().map(|s| s.cpu_brand.clone()).unwrap_or_default();
         html! {
-            <div class="hud-metric-card" title={self.stats.as_ref().map(|s| s.cpu_brand.clone()).unwrap_or_default()}>
-                <h3>{"CPU"}</h3>
+            <div class="hud-metric-card" title={cpu_brand.clone()}>
+                <h3 style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 100%;" title={cpu_brand.clone()}>
+                    {if self.stats.is_some() {
+                        format!("CPU: {}", cpu_brand)
+                    } else {
+                        "CPU".to_string()
+                    }}
+                </h3>
                 {if let Some(stats) = &self.stats {
                     html! {
                         <div class="card-metric-block">
                             <div class="card-main-val">{format!("{:.1}%", stats.cpu_global)}</div>
-                            <div class="card-subtext" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title={stats.cpu_brand.clone()}>
-                                {format!("{} Cores | {}", stats.cpu_cores.len(), stats.cpu_brand)}
-                            </div>
+                            <div class="card-subtext">{format!("{} Cores", stats.cpu_cores.len())}</div>
                             <div class="hud-bar-frame"><div class="hud-bar-fill" style={format!("width: {}%;", stats.cpu_global)}></div></div>
                             { self.render_sparkline(&self.cpu_history, 100.0) }
                         </div>
@@ -129,12 +134,12 @@ impl App {
                         let name_str = if gpu.name.is_empty() { format!("GPU {}", idx + 1) } else { gpu.name.clone() };
                         html! {
                             <div class="hud-metric-card" title={name_str.clone()}>
-                                <h3>{format!("GPU {}", idx + 1)}</h3>
+                                <h3 style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 100%;" title={name_str.clone()}>
+                                    {format!("GPU {}: {}", idx + 1, name_str)}
+                                </h3>
                                 <div class="card-metric-block">
                                     <div class="card-main-val">{format!("{:.1}%", gpu.usage)}</div>
-                                    <div class="card-subtext" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title={name_str.clone()}>
-                                        {format!("Temp: {} | {}", temp_str, name_str)}
-                                    </div>
+                                    <div class="card-subtext">{format!("Core Temp: {}", temp_str)}</div>
                                     <div class="hud-bar-frame"><div class="hud-bar-fill" style={format!("width: {}%;", gpu.usage)}></div></div>
                                     { self.render_sparkline(&self.gpu_histories[idx], 100.0) }
                                 </div>
