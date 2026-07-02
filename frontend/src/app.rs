@@ -188,9 +188,7 @@ impl Component for App {
                     enable_print={self.enable_print}
                     print_disabled={false}
                     on_print={on_print}
-                    site_url={Some("https://github.com/UberMetroid/pulse".to_string())}
                     version={Some(env!("CARGO_PKG_VERSION").to_string())}
-                    version_url={Some(format!("https://github.com/UberMetroid/pulse/releases/tag/v{}", env!("CARGO_PKG_VERSION")))}
                 />
 
 
@@ -204,12 +202,8 @@ impl Component for App {
                 </div>
 
                 <Footer
-                    show_version={false}
                     version={env!("CARGO_PKG_VERSION").to_string()}
-                    version_url={Some(format!("https://github.com/UberMetroid/pulse/releases/tag/v{}", env!("CARGO_PKG_VERSION")))}
-                    show_github={true}
-                    github_url={Some("https://github.com/UberMetroid".to_string())}
-                    coffee_url={if self.enable_coffee { Some("https://buymeacoffee.com/ubermetroid".to_string()) } else { None }}
+                    show_coffee={self.enable_coffee}
                 >
                     {
                         if let Some((msg, cls)) = &self.active_notification {
