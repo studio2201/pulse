@@ -31,6 +31,7 @@ pub enum Msg {
     CheckFallback,
     ClearNotification(String),
     CycleOsOverride,
+    Print,
 }
 
 pub struct App {
@@ -166,11 +167,7 @@ impl Component for App {
         let on_language_change = ctx.link().callback(Msg::ChangeLanguage);
         let on_logout = ctx.link().callback(|_| Msg::Logout);
 
-        let on_print = Some(Callback::from(|_| {
-            if let Some(window) = web_sys::window() {
-                let _ = window.print();
-            }
-        }));
+        let on_print = Some(ctx.link().callback(|_| Msg::Print));
 
         html! {
             <>
@@ -186,7 +183,7 @@ impl Component for App {
                     enable_translation={self.enable_translation}
                     enable_themes={self.enable_themes}
                     enable_print={self.enable_print}
-                    print_disabled={false}
+                    print_disabled={self.pin_required && !self.is_authenticated}
                     on_print={on_print}
                     version={Some(env!("CARGO_PKG_VERSION").to_string())}
                 />
@@ -215,5 +212,17 @@ impl Component for App {
                 </Footer>
             </>
         }
+    }
+}
+
+impl App {
+    pub fn show_notification(&mut self, ctx: &Context<Self>, msg: String, cls: String) {
+        self.active_notification = Some((msg.clone(), cls));
+        let link = ctx.link().clone();
+        let clear_msg = msg.clone();
+        gloo_timers::callback::Timeout::new(3000, move || {
+            link.send_message(Msg::ClearNotification(clear_msg));
+        })
+        .forget();
     }
 }

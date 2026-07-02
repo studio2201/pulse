@@ -1,5 +1,6 @@
 use gloo_timers::callback::Timeout;
 use yew::prelude::*;
+use shared_frontend::i18n::strings::{lookup, StringKey};
 
 use crate::app::App;
 use crate::app::Msg;
@@ -13,7 +14,7 @@ impl App {
         error: Option<String>,
         attempts_left: Option<usize>,
         lockout_minutes: Option<u64>,
-    ) -> bool {
+     ) -> bool {
         self.is_authenticated = success;
         self.pin_input.clear();
         if success {
@@ -21,10 +22,16 @@ impl App {
             self.attempts_left = None;
             self.lockout_minutes = None;
             self.connect_ws(ctx);
+            self.show_notification(ctx, lookup(StringKey::StatusPinSuccess, self.language).to_string(), "success".to_string());
         } else {
-            self.error_message = error;
+            self.error_message = error.clone();
             self.attempts_left = attempts_left;
             self.lockout_minutes = lockout_minutes;
+            if error.is_some() || attempts_left.is_some() || lockout_minutes.is_some() {
+                self.show_notification(ctx, lookup(StringKey::StatusPinFailure, self.language).to_string(), "error".to_string());
+            } else {
+                self.show_notification(ctx, lookup(StringKey::StatusLogout, self.language).to_string(), "success".to_string());
+            }
         }
         true
     }

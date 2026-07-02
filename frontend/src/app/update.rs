@@ -2,6 +2,7 @@ use gloo_net::http::Request;
 use gloo_timers::callback::Timeout;
 use serde_json::Value;
 use yew::prelude::*;
+use shared_frontend::i18n::strings::{lookup, StringKey};
 
 use crate::app::App;
 use crate::app::Msg;
@@ -111,7 +112,7 @@ impl App {
             Msg::UpdateStats(stats) => self.handle_update_stats(stats),
             Msg::WsError(_err) => {
                 self.active_notification = Some((
-                    crate::i18n::lookup(crate::i18n::PulseKey::Disconnected, self.language),
+                    lookup(StringKey::StatusOffline, self.language).to_string(),
                     "error".to_string()
                 ));
                 self.ws = None;
@@ -123,12 +124,12 @@ impl App {
                 true
             }
             Msg::WsLog(msg) => {
-                let display_msg = if msg.contains("Connection established") {
-                    crate::i18n::lookup(crate::i18n::PulseKey::ConnectionEstablished, self.language)
+                let (display_msg, cls) = if msg.contains("Connection established") {
+                    (lookup(StringKey::StatusOnline, self.language).to_string(), "success")
                 } else {
-                    msg.clone()
+                    (msg.clone(), "info")
                 };
-                self.active_notification = Some((display_msg, "info".to_string()));
+                self.active_notification = Some((display_msg.clone(), cls.to_string()));
                 let link = ctx.link().clone();
                 Timeout::new(3000, move || {
                     link.send_message(Msg::ClearNotification(msg));
@@ -162,6 +163,7 @@ impl App {
                         .set_attribute("data-theme", &self.theme)
                         .unwrap();
                 }
+                self.show_notification(ctx, lookup(StringKey::StatusThemeChanged, self.language).to_string(), "success".to_string());
                 true
             }
             Msg::ChangeLanguage(lang) => {
@@ -226,6 +228,17 @@ impl App {
                             }
                         }
                     });
+                }
+                false
+            }
+            Msg::Print => {
+                if let Some(window) = web_sys::window() {
+                    let print_res = window.print();
+                    if print_res.is_ok() {
+                        self.show_notification(ctx, lookup(StringKey::StatusPrintSuccess, self.language).to_string(), "success".to_string());
+                    } else {
+                        self.show_notification(ctx, lookup(StringKey::StatusPrintFailure, self.language).to_string(), "error".to_string());
+                    }
                 }
                 false
             }
