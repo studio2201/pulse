@@ -26,58 +26,6 @@ The Docker image is built with **Nix** (no Alpine, fully reproducible) and publi
 
 ---
 
-## Container Installation
-
-1. Create a `docker-compose.yml` file:
-
-```yaml
-version: '3'
-services:
-  pulse:
-    image: ubermetroid/pulse:latest
-    container_name: pulse
-    restart: unless-stopped
-    ports:
-      - 4406:4406
-    environment:
-      - PORT=4406
-      - SITE_TITLE=Pulse
-      - BASE_URL=http://localhost:4406
-      - ALLOWED_ORIGINS=*
-      - PULSE_PIN=1234
-      - PULSE_REFRESH_INTERVAL=2
-      - TRUST_PROXY=false
-      - TZ=UTC
-      - ENABLE_TRANSLATION=false
-      - ENABLE_THEMES=true
-      - ENABLE_PRINT=false
-```
-
-2. Run the container:
-
-```bash
-docker compose up -d
-```
-
-3. Open your browser and navigate to `http://localhost:4406`.
-
-### Building the Image Locally
-
-To build the Docker container locally from the source files using Nix:
-
-```bash
-nix build .#dockerImage
-docker load < result
-docker tag pulse-nix:latest ubermetroid/pulse:latest
-```
-
-The image is Nix-built (no Alpine, no Docker daemon dependency for the build).
-For development iteration, use the devShell:
-
-```bash
-nix develop
-```
-
 ## Configuration Options
 
 Configure these settings inside your Docker Compose environment or container environment variables:
