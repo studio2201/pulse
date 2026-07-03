@@ -109,7 +109,6 @@
             ExposedPorts = {
               "4406/tcp" = {};
             };
-            User = "65534:65534";
             Healthcheck = {
               Test = [ "CMD-SHELL" "wget -qO- http://localhost:4406/health >/dev/null 2>&1 || exit 1" ];
               Interval = 30000000000;

@@ -79,16 +79,16 @@
     "shared-assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1783014676,
-        "narHash": "sha256-oGbq9cFo2sGByGl3KBYyz6H9OSiVfRrDMHcoV1Kjk9g=",
-        "ref": "v3.0.17",
-        "rev": "cc842eaad98f11f669ce103cd9a3e9daad448b41",
-        "revCount": 62,
+        "lastModified": 1783055744,
+        "narHash": "sha256-sjkQrpXtrCQKWk1hQeTw1GHvcpl+tthWKkEWuyZOXSA=",
+        "ref": "v3.0.18",
+        "rev": "bb9937356c4b477c617a069e6e5c6201074e1325",
+        "revCount": 63,
         "type": "git",
         "url": "file:///home/jeryd/Projects/ubermetroid/shared-assets"
       },
       "original": {
-        "ref": "v3.0.17",
+        "ref": "v3.0.18",
         "type": "git",
         "url": "file:///home/jeryd/Projects/ubermetroid/shared-assets"
       }

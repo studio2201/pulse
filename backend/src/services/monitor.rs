@@ -62,9 +62,53 @@ impl SystemMonitor {
         let os_name = std::env::var("PULSE_OS")
             .ok()
             .filter(|s| !s.is_empty())
+            .or_else(|| {
+                std::fs::read_to_string("/etc/host_os-release")
+                    .ok()
+                    .and_then(|content| {
+                        content.lines()
+                            .find(|line| line.starts_with("PRETTY_NAME="))
+                            .or_else(|| {
+                                content.lines()
+                                    .find(|line| line.starts_with("NAME="))
+                            })
+                            .map(|line| {
+                                line.split('=')
+                                    .nth(1)
+                                    .unwrap_or("")
+                                    .trim_matches('"')
+                                    .trim_matches('\'')
+                                    .to_string()
+                            })
+                    })
+            })
             .or_else(System::name)
             .unwrap_or_else(|| "Linux".to_string());
-        let os_version = System::os_version().unwrap_or_default();
+        let os_version = std::env::var("PULSE_OS_VERSION")
+            .ok()
+            .filter(|s| !s.is_empty())
+            .or_else(|| {
+                std::fs::read_to_string("/etc/host_os-release")
+                    .ok()
+                    .and_then(|content| {
+                        content.lines()
+                            .find(|line| line.starts_with("VERSION_ID="))
+                            .or_else(|| {
+                                content.lines()
+                                    .find(|line| line.starts_with("VERSION="))
+                            })
+                            .map(|line| {
+                                line.split('=')
+                                    .nth(1)
+                                    .unwrap_or("")
+                                    .trim_matches('"')
+                                    .trim_matches('\'')
+                                    .to_string()
+                            })
+                    })
+            })
+            .or_else(System::os_version)
+            .unwrap_or_default();
         let kernel_version = System::kernel_version().unwrap_or_default();
 
         Self {
