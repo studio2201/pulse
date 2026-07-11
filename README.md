@@ -1,26 +1,32 @@
+<p align="center">
+  <a href="https://github.com/etecoons">
+    <img src="assets/header.jpg" alt="etecoons banner" width="100%">
+  </a>
+</p>
+
 # Pulse — Self-Hosted System Monitor <img src="https://raw.githubusercontent.com/etecoons/unraid-apps/main/icons/pulse.png" width="48" height="48" alt="pulse logo" align="right">
 
 Pulse is a minimalist, high-performance, self-hosted system monitor. It runs a lightweight background thread on the host (or container) that queries CPU, RAM, Network I/O, and GPU usage metrics, streaming them to a sci-fi heads-up display (HUD) and an interactive diagnostic terminal in real-time. Built with a high-performance Rust (Axum/Tokio) backend and a WebAssembly (Yew) frontend.
 
 ---
 
-## 🏛️ Architecture & Stack
-*   **Frontend**: Yew (WASM)
-*   **Backend**: Axum (Rust) / Tokio (SSE Broadcaster)
-*   **Deployment**: UBI container (Red Hat UBI9) on Docker Hub / Unraid / Podman / Docker Compose
+## Architecture & Stack
+* **Frontend**: Yew (WASM)
+* **Backend**: Axum (Rust) / Tokio (SSE Broadcaster)
+* **Deployment**: UBI container (Red Hat UBI9) on Docker Hub / Unraid / Podman / Docker Compose
 
 ---
 
 ## 🟢 Key Features
-*   **Samus-Visor HUD**: Immersive, radial circular progress gauges representing CPU, memory, and GPU usage with high-tech glow and warning alarms.
-*   **Aura Terminal**: Monospace sci-fi terminal log view that streams details and handles interactive debug commands.
-*   **Auto-Adapting GPU Passthrough**: Dynamically scans for NVIDIA (`nvidia-smi`) and AMD/Intel (`sysfs`) graphics cards and adapts widgets automatically.
-*   **Access PIN Security**: Lock down the interface with an optional numerical PIN for absolute privacy.
-*   **Performance First**: Tiny resource footprint, zero external JS engine dependencies, and rapid page load speeds.
+* **Samus-Visor HUD**: Immersive, radial circular progress gauges representing CPU, memory, and GPU usage with high-tech glow and warning alarms.
+* **Aura Terminal**: Monospace sci-fi terminal log view that streams details and handles interactive debug commands.
+* **Auto-Adapting GPU Passthrough**: Dynamically scans for NVIDIA (`nvidia-smi`) and AMD/Intel (`sysfs`) graphics cards and adapts widgets automatically.
+* **Access PIN Security**: Lock down the interface with an optional numerical PIN for absolute privacy.
+* **Performance First**: Tiny resource footprint, zero external JS engine dependencies, and rapid page load speeds.
 
 ---
 
-## 💾 Deployment & Installation
+## Deployment & Installation
 
 ### Container images (Docker Hub)
 
@@ -46,29 +52,29 @@ Create a `docker-compose.yml` file with the following service definition:
 
 ```yaml
 services:
-  pulse:
-    image: etecoons/pulse:latest
-    container_name: pulse
-    restart: unless-stopped
-    ports:
-      - ${PORT:-4406}:4406
-    volumes:
-      - ${PULSE_DATA_PATH:-./data}:/app/data
-      # Optional: bind-mount host proc for accurate metrics inside docker
-      - /proc:/host/proc:ro
-      # Optional: pass through sysfs for AMD/Intel GPU detection
-      - /sys:/sys:ro
-    environment:
-      PORT: 4406
-      SITE_TITLE: ${PULSE_SITE_TITLE:-Pulse}
-      PULSE_PIN: ${PULSE_PIN:-}
-      BASE_URL: ${PULSE_BASE_URL:-http://localhost:4406}
-      ALLOWED_ORIGINS: ${PULSE_ALLOWED_ORIGINS:-*}
-      TZ: ${TZ:-UTC}
-      ENABLE_TRANSLATION: ${ENABLE_TRANSLATION:-false}
-      ENABLE_THEMES: ${ENABLE_THEMES:-true}
-      MAX_ATTEMPTS: ${MAX_ATTEMPTS:-5}
-      PULSE_REFRESH_INTERVAL: ${PULSE_REFRESH_INTERVAL:-2}
+ pulse:
+ image: etecoons/pulse:latest
+ container_name: pulse
+ restart: unless-stopped
+ ports:
+ - ${PORT:-4406}:4406
+ volumes:
+ - ${PULSE_DATA_PATH:-./data}:/app/data
+ # Optional: bind-mount host proc for accurate metrics inside docker
+ - /proc:/host/proc:ro
+ # Optional: pass through sysfs for AMD/Intel GPU detection
+ - /sys:/sys:ro
+ environment:
+ PORT: 4406
+ SITE_TITLE: ${PULSE_SITE_TITLE:-Pulse}
+ PULSE_PIN: ${PULSE_PIN:-}
+ BASE_URL: ${PULSE_BASE_URL:-http://localhost:4406}
+ ALLOWED_ORIGINS: ${PULSE_ALLOWED_ORIGINS:-*}
+ TZ: ${TZ:-UTC}
+ ENABLE_TRANSLATION: ${ENABLE_TRANSLATION:-false}
+ ENABLE_THEMES: ${ENABLE_THEMES:-true}
+ MAX_ATTEMPTS: ${MAX_ATTEMPTS:-5}
+ PULSE_REFRESH_INTERVAL: ${PULSE_REFRESH_INTERVAL:-2}
 ```
 
 ### Build the UBI image locally
@@ -78,10 +84,10 @@ Requires [Podman](https://podman.io/) (or Docker) and network access to pull bas
 ```bash
 # From the repository root
 podman build --format docker -f Containerfile.ubi \
-  -t docker.io/etecoons/pulse:1.3.34 \
-  -t docker.io/etecoons/pulse:latest \
-  -t docker.io/etecoons/pulse:ubi \
-  .
+ -t docker.io/etecoons/pulse:1.3.34 \
+ -t docker.io/etecoons/pulse:latest \
+ -t docker.io/etecoons/pulse:ubi \
+ .
 
 # Optional: push all three tags
 podman push docker.io/etecoons/pulse:1.3.34
@@ -91,7 +97,7 @@ podman push docker.io/etecoons/pulse:ubi
 
 ---
 
-## ⚙️ Configuration Options
+## Configuration Options
 
 | Environment Variable | Description | Default |
 | :--- | :--- | :--- |
@@ -121,7 +127,7 @@ podman push docker.io/etecoons/pulse:ubi
 
 ---
 
-## 🛠️ Local Development
+## Local Development
 
 Ensure you have the Rust toolchain and Trunk installed.
 
@@ -141,5 +147,5 @@ cd backend && cargo run
 
 ---
 
-## 📄 License
+## License
 Licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 etecoons.
