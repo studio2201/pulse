@@ -17,7 +17,7 @@ Pulse is a minimalist, high-performance, self-hosted system monitor. It runs a l
 
 ---
 
-## 🟢 Key Features
+## Key Features
 * **Samus-Visor HUD**: Immersive, radial circular progress gauges representing CPU, memory, and GPU usage with high-tech glow and warning alarms.
 * **Aura Terminal**: Monospace sci-fi terminal log view that streams details and handles interactive debug commands.
 * **Auto-Adapting GPU Passthrough**: Dynamically scans for NVIDIA (`nvidia-smi`) and AMD/Intel (`sysfs`) graphics cards and adapts widgets automatically.
