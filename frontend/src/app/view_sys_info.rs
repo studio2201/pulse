@@ -21,7 +21,7 @@ impl App {
 
             let os_name = match self.os_override {
                 None => stats.os_name.clone(),
-                Some(0) => "nixos".to_string(),
+                Some(0) => "UBI".to_string(),
                 Some(1) => "ubuntu".to_string(),
                 Some(2) => "debian".to_string(),
                 Some(3) => "arch".to_string(),

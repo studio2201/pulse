@@ -705,7 +705,7 @@
     text-shadow: 0 0 8px var(--primary-glow);
 }
 
-.sys-info-right pre.os-nixos {
+.sys-info-right pre.os-UBI {
     color: #5277C3 !important;
     text-shadow: 0 0 8px rgba(82, 119, 195, 0.75) !important;
 }

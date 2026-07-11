@@ -194,7 +194,7 @@ impl App {
                 self.os_override = next_idx;
                 let notify_text = match next_idx {
                     None => "OS Logo: Auto-Detect".to_string(),
-                    Some(0) => "OS Logo: NixOS".to_string(),
+                    Some(0) => "OS Logo: UBI".to_string(),
                     Some(1) => "OS Logo: Ubuntu".to_string(),
                     Some(2) => "OS Logo: Debian".to_string(),
                     Some(3) => "OS Logo: Arch Linux".to_string(),

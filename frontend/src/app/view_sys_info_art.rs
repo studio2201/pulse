@@ -4,9 +4,9 @@ use yew::prelude::*;
 impl App {
     pub fn get_os_logo(&self, os_name: &str) -> Html {
         let os = os_name.to_lowercase();
-        if os.contains("nixos") {
+        if os.contains("UBI") {
             html! {
-                <pre class="os-nixos">
+                <pre class="os-UBI">
                     {"  █████▄▄      ▄▄█████\n"}
                     {"  ▀▀██████    ██████▀▀\n"}
                     {"    ▀██████  ██████▀\n"}
