@@ -40,12 +40,12 @@ Images are **UBI9-minimal** based (Red Hat Universal Base Image). Tags:
 
 ```bash
 # Pull examples
-podman pull docker.io/etecoons/pulse:latest
-podman pull docker.io/etecoons/pulse:ubi
-podman pull docker.io/etecoons/pulse:1.3.34
+podman pull docker.io/ghcr.io/etecoons/pulse:latest
+podman pull docker.io/ghcr.io/etecoons/pulse:ubi
+podman pull docker.io/ghcr.io/etecoons/pulse:1.3.34
 ```
 
-Hub: [https://hub.docker.com/r/etecoons/pulse](https://hub.docker.com/r/etecoons/pulse)
+Hub: [https://hub.docker.com/r/ghcr.io/etecoons/pulse](https://hub.docker.com/r/ghcr.io/etecoons/pulse)
 
 ### Docker Compose
 Create a `docker-compose.yml` file with the following service definition:
@@ -53,7 +53,7 @@ Create a `docker-compose.yml` file with the following service definition:
 ```yaml
 services:
  pulse:
- image: etecoons/pulse:latest
+ image: ghcr.io/etecoons/pulse:latest
  container_name: pulse
  restart: unless-stopped
  ports:
@@ -84,15 +84,15 @@ Requires [Podman](https://podman.io/) (or Docker) and network access to pull bas
 ```bash
 # From the repository root
 podman build --format docker -f Containerfile.ubi \
- -t docker.io/etecoons/pulse:1.3.34 \
- -t docker.io/etecoons/pulse:latest \
- -t docker.io/etecoons/pulse:ubi \
+ -t docker.io/ghcr.io/etecoons/pulse:1.3.34 \
+ -t docker.io/ghcr.io/etecoons/pulse:latest \
+ -t docker.io/ghcr.io/etecoons/pulse:ubi \
  .
 
 # Optional: push all three tags
-podman push docker.io/etecoons/pulse:1.3.34
-podman push docker.io/etecoons/pulse:latest
-podman push docker.io/etecoons/pulse:ubi
+podman push docker.io/ghcr.io/etecoons/pulse:1.3.34
+podman push docker.io/ghcr.io/etecoons/pulse:latest
+podman push docker.io/ghcr.io/etecoons/pulse:ubi
 ```
 
 ---

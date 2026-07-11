@@ -1,6 +1,6 @@
 services:
   pulse:
-    image: etecoons/pulse:latest
+    image: ghcr.io/etecoons/pulse:latest
     container_name: pulse
     restart: unless-stopped
     ports:

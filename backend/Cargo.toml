@@ -1,6 +1,6 @@
 [package]
 name = "pulse-backend"
-version = "1.3.39"
+version = "1.3.40"
 edition = "2024"
 authors = ["etecoons"]
 license = "Apache-2.0"
@@ -10,8 +10,8 @@ description = "Axum backend service for Pulse."
 readme = "../README.md"
 
 [dependencies]
-shared-core = { git = "https://github.com/etecoons/shared-assets.git", tag = "v3.0.21" }
-shared-backend = { git = "https://github.com/etecoons/shared-assets.git", tag = "v3.0.21" }
+shared-core = { git = "https://github.com/etecoons/shared-assets.git", tag = "v3.0.28" }
+shared-backend = { git = "https://github.com/etecoons/shared-assets.git", tag = "v3.0.28" }
 tokio = { version = "1.36", features = ["macros", "rt-multi-thread", "net", "time", "sync", "io-util"] }
 axum = { version = "0.8", features = ["ws"] }
 tower-http = { version = "0.6", features = ["fs", "cors", "trace"] }
