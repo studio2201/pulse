@@ -2,6 +2,7 @@ use shared_frontend::i18n::Language;
 use shared_frontend::locale::{detect_browser_locale, set_saved_locale};
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub enum PulseKey {
     Cpu,
     Memory,
