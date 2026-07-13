@@ -124,14 +124,14 @@ impl SystemMonitor {
         let interval = Duration::from_secs(interval_secs);
         loop {
             // Refresh CPU and Memory data
-            self.sys.refresh_cpu();
+            self.sys.refresh_cpu_all();
             self.sys.refresh_memory();
 
             // Refresh Network data
-            self.networks.refresh();
+            self.networks.refresh(true);
 
             // Calculate CPU global and per-core
-            let cpu_global = self.sys.global_cpu_info().cpu_usage();
+            let cpu_global = self.sys.global_cpu_usage();
             let cpu_cores: Vec<f32> = self.sys.cpus().iter().map(|c| c.cpu_usage()).collect();
 
             // Calculate RAM usage
@@ -191,7 +191,7 @@ impl SystemMonitor {
                         || label.contains("package")
                         || label.contains("temp")
                 })
-                .map(|c| c.temperature())
+                .filter_map(|c| c.temperature())
                 .max_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
             let stats = SystemStats {
