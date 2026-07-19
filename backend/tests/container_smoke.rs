@@ -12,7 +12,7 @@ const DEFAULT_PORT: u16 = 4406;
 
 const FAVICON_CANDIDATES: &[&str] = &["/favicon.png", "/favicon.svg", "/assets/favicon.png"];
 const MANIFEST_CANDIDATES: &[&str] = &["/manifest.json", "/assets/manifest.json"];
-const CONFIG_CANDIDATES: &[&str] = &["/api/config", "/api/auth/config"];
+const CONFIG_CANDIDATES: &[&str] = &["/config", "/api/config", "/api/auth/config"];
 const SERVICE_WORKER_CANDIDATES: &[&str] = &[
     "/service-worker.js",
     "/api/service-worker.js",
@@ -145,39 +145,31 @@ async fn service_worker_or_frontend_serves() {
     );
 }
 
-// ---------- per-app tests: pulse (Prometheus metrics) ----------
+// ---------- per-app tests: pulse (stats endpoint) ----------
 
 #[tokio::test]
 #[ignore]
-async fn metrics_returns_prometheus_text_format() {
+async fn stats_endpoint_returns_system_metrics() {
     wait_for_health().await;
     let c = client();
-
-    let r = c
-        .get(format!("{}/api/metrics", base_url()))
-        .send()
-        .await
-        .unwrap();
-    assert_eq!(r.status(), 200, "expected 200 from /api/metrics");
-
-    let ct = r
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("")
-        .to_string();
-    assert!(
-        ct.starts_with("text/plain"),
-        "Prometheus exposition must be text/plain, got {ct:?}"
-    );
-
-    let body = r.text().await.unwrap();
-    assert!(
-        body.contains("# HELP") || body.contains("# TYPE"),
-        "metrics body lacks Prometheus exposition comments: {body:?}"
-    );
-    assert!(
-        body.contains("process_") || body.contains("cpu"),
-        "metrics body lacks any process_* or cpu metric: {body:?}"
-    );
+    // Pulse's system stats endpoint lives at /api/stats. The body is
+    // JSON (not Prometheus text format) with cpu_global, cpu_cores,
+    // ram_used, etc.
+    for path in ["/api/stats", "/api/metrics", "/metrics"] {
+        let r = c.get(format!("{}{}", base_url(), path)).send().await.unwrap();
+        if !r.status().is_success() {
+            continue;
+        }
+        let v: Value = r.json().await.unwrap();
+        assert!(
+            v.is_object(),
+            "{path} must return a JSON object, got {v:?}"
+        );
+        assert!(
+            v["cpu_global"].is_number() || v["cpu"].is_number() || v["ram_used"].is_number(),
+            "{path} must expose at least one numeric system metric, got {v:?}"
+        );
+        return;
+    }
+    panic!("no stats endpoint returned 2xx");
 }
