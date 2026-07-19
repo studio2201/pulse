@@ -8,6 +8,11 @@ members = [
 [workspace.package]
 name = "pulse"
 version = "1.3.53"
+edition = "2024"
+authors = ["studio2201"]
+license = "Apache-2.0"
+repository = "https://github.com/studio2201/pulse"
+homepage = "https://github.com/studio2201/pulse"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
@@ -28,6 +33,6 @@ codegen-units = 1      # Reduce parallel codegen for better optimizations
 panic = "abort"        # Disable unwinding for smaller binary sizes
 strip = true           # Strip all symbols and debug info
 
-[profile.release.package.pulse-frontend]
+[profile.release.package.frontend]
 opt-level = "z"        # Specifically optimize the frontend WASM for size
 

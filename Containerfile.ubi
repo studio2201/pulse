@@ -57,8 +57,8 @@ ENV CARGO_TARGET_DIR=/src/target
 RUN trunk build --release
 
 WORKDIR /src
-RUN cargo build --release -p pulse-backend \
- && (strip target/release/pulse-backend || true)
+RUN cargo build --release -p backend \
+ && (strip target/release/backend || true)
 
 # ---------- runtime: Red Hat UBI Minimal ----------
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
@@ -76,7 +76,7 @@ RUN microdnf install -y ca-certificates wget shadow-utils \
  && mkdir -p /app/data /app/frontend/dist \
  && chown -R 99:100 /app
 
-COPY --from=builder /src/target/release/pulse-backend /app/backend
+COPY --from=builder /src/target/release/backend /app/backend
 COPY --from=builder /src/frontend/dist /app/frontend/dist
 
 WORKDIR /app
