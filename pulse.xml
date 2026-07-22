@@ -12,8 +12,8 @@
   <Overview>Real-time system health, telemetry, and metrics monitoring dashboard built in Rust.</Overview>
   <Category>Tools:System Network:Management</Category>
   <WebUI>http://[IP]:[PORT:4406]/</WebUI>
-  <TemplateURL>https://raw.githubusercontent.com/studio2201/unraid-templates/main/templates/pulse.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/studio2201/unraid-templates/main/icons/pulse.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/studio2201/unraid-templates/master/templates/pulse.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/studio2201/unraid-templates/master/icons/pulse.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
