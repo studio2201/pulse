@@ -3,7 +3,6 @@ mod data;
 mod doctor;
 mod process;
 mod status;
-mod tui;
 
 use std::env;
 
@@ -16,11 +15,13 @@ fn main() {
     if args.len() > 1 {
         let cmd = args[1].to_lowercase();
         if cmd == "tui" {
-            tui::run_tui();
-        } else {
-            cli::handle_cli_args(&args);
+            eprintln!(
+                "The interactive TUI console has been removed. Use 'sh help' to see available CUI commands."
+            );
+            std::process::exit(2);
         }
+        cli::handle_cli_args(&args);
     } else {
-        tui::run_tui();
+        cli::print_help();
     }
 }
