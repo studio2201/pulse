@@ -1,3 +1,4 @@
+getrandom = { version = "0.2" }
 [package]
 name = "backend"
 version = "1.0.27"

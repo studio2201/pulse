@@ -1,3 +1,5 @@
+mod cookie_auth;
+mod session_id;
 use axum::{Router, middleware, routing::get};
 use shared_backend::middleware::{
     HstsState, TitleState, cors_layer, hsts_layer, security_headers_layer, title_injection_layer,

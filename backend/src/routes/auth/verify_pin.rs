@@ -67,21 +67,19 @@ pub async fn verify_pin(
     if constant_time_eq(pin_str.as_bytes(), expected_pin.as_bytes()) {
         attempts::reset_attempts(&ip_str);
 
-        let session_id = shared_backend::session_id::generate_session_id();
+        let session_id = crate::session_id::generate_session_id();
         state
             .active_sessions
             .write()
             .await
             .insert(session_id.clone());
 
-        let secure = shared_backend::cookie_auth::cookie_should_be_secure(
+        let secure = crate::cookie_auth::cookie_should_be_secure(
             &headers,
             &state.config.server.base_url,
         );
 
-        let cookie = shared_backend::cookie_auth::build_cookie(
-            COOKIE_NAME,
-            &session_id,
+        let cookie = crate::cookie_auth::build_cookie(&session_id,
             state.config.server.cookie_max_age_hours,
             secure,
         );
