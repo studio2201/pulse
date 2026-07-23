@@ -14,7 +14,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use constant_time_eq::constant_time_eq;
-use shared_backend::server::get_client_ip;
+use crate::ip::get_client_ip;
 use std::net::SocketAddr;
 use std::time::Duration;
 
@@ -31,7 +31,7 @@ pub struct VerifyPinPayload {
 /// (not the raw PIN), so constant-time comparison is defense in depth
 /// against timing leaks of the session-id table.
 pub async fn is_authenticated(headers: &HeaderMap, state: &AppState) -> bool {
-    let pin = match &state.config.server.pin {
+    let pin = match &state.config.pin {
         Some(p) => p,
         None => return true,
     };
@@ -72,7 +72,7 @@ pub async fn origin_validation_middleware(
     req: axum::extract::Request,
     next: Next,
 ) -> Result<Response, StatusCode> {
-    let origins_env = state.config.server.allowed_origins.trim();
+    let origins_env = state.config.allowed_origins.trim();
     // Empty = no allowlist configured (Unraid often omits ALLOWED_ORIGINS).
     if origins_env.is_empty() || origins_env == "*" {
         return Ok(next.run(req).await);
@@ -137,8 +137,8 @@ pub async fn rate_limit_middleware(
     let ip = get_client_ip(
         req.headers(),
         addr.unwrap_or_else(|| SocketAddr::from(([127, 0, 0, 1], 0))),
-        state.config.server.trust_proxy,
-        &state.config.server.trusted_proxies,
+        state.config.trust_proxy,
+        &state.config.trusted_proxies,
     );
 
     // 100 requests per 60 seconds per IP

@@ -6,7 +6,7 @@ use axum::{
 };
 use constant_time_eq::constant_time_eq;
 use shared_backend::auth::attempts;
-use shared_backend::server::get_client_ip;
+use crate::ip::get_client_ip;
 use std::net::SocketAddr;
 use std::time::Duration;
 
@@ -19,7 +19,7 @@ pub async fn verify_pin(
     State(state): State<AppState>,
     Json(payload): Json<VerifyPinPayload>,
 ) -> impl IntoResponse {
-    let pin_req = &state.config.server.pin;
+    let pin_req = &state.config.pin;
     if pin_req.is_none() {
         return (StatusCode::OK, Json(serde_json::json!({ "success": true }))).into_response();
     }
@@ -29,13 +29,13 @@ pub async fn verify_pin(
     let ip = get_client_ip(
         &headers,
         addr,
-        state.config.server.trust_proxy,
-        &state.config.server.trusted_proxies,
+        state.config.trust_proxy,
+        &state.config.trusted_proxies,
     );
     let ip_str = ip.to_string();
-    let lockout_dur = Duration::from_secs(state.config.server.lockout_time_minutes * 60);
+    let lockout_dur = Duration::from_secs(state.config.lockout_time_minutes * 60);
 
-    if attempts::is_locked_out(&ip_str, state.config.server.max_attempts, lockout_dur) {
+    if attempts::is_locked_out(&ip_str, state.config.max_attempts, lockout_dur) {
         let remaining = attempts::lockout_remaining_secs(&ip_str, lockout_dur);
         let time_left_min = (remaining as f64 / 60.0).ceil() as u64;
         return (
@@ -76,11 +76,11 @@ pub async fn verify_pin(
 
         let secure = crate::cookie_auth::cookie_should_be_secure(
             &headers,
-            &state.config.server.base_url,
+            &state.config.base_url,
         );
 
         let cookie = crate::cookie_auth::build_cookie(&session_id,
-            state.config.server.cookie_max_age_hours,
+            state.config.cookie_max_age_hours,
             secure,
         );
         let cookie_str = cookie.to_string();
@@ -106,7 +106,7 @@ pub async fn verify_pin(
             "failed PIN attempt #{count} from {ip_str}",
             count = attempt.count
         );
-        if attempt.count >= state.config.server.max_attempts {
+        if attempt.count >= state.config.max_attempts {
             tracing::warn!(target: "auth", "IP {ip_str} locked out");
         }
 

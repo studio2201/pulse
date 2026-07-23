@@ -5,7 +5,7 @@ use axum::{
     response::IntoResponse,
 };
 use shared_backend::auth::attempts;
-use shared_backend::server::get_client_ip;
+use crate::ip::get_client_ip;
 use std::net::SocketAddr;
 use std::time::Duration;
 
@@ -27,19 +27,19 @@ pub async fn pin_required(
     let ip = get_client_ip(
         &headers,
         addr,
-        state.config.server.trust_proxy,
-        &state.config.server.trusted_proxies,
+        state.config.trust_proxy,
+        &state.config.trusted_proxies,
     );
     let ip_str = ip.to_string();
-    let lockout_dur = Duration::from_secs(state.config.server.lockout_time_minutes * 60);
+    let lockout_dur = Duration::from_secs(state.config.lockout_time_minutes * 60);
     Json(serde_json::json!({
-        "required": state.config.server.pin.is_some(),
-        "length": state.config.server.pin.as_ref().map(|p| p.len()).unwrap_or(0),
-        "locked": attempts::is_locked_out(&ip_str, state.config.server.max_attempts, lockout_dur),
-        "enable_translation": state.config.server.enable_translation,
-        "enable_themes": state.config.server.enable_themes,
-        "enable_print": state.config.server.enable_print,
-        "show_version": state.config.server.show_version,
-        "show_github": state.config.server.show_github,
+        "required": state.config.pin.is_some(),
+        "length": state.config.pin.as_ref().map(|p| p.len()).unwrap_or(0),
+        "locked": attempts::is_locked_out(&ip_str, state.config.max_attempts, lockout_dur),
+        "enable_translation": state.config.enable_translation,
+        "enable_themes": state.config.enable_themes,
+        "enable_print": state.config.enable_print,
+        "show_version": state.config.show_version,
+        "show_github": state.config.show_github,
     }))
 }

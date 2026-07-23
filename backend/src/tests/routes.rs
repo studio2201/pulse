@@ -13,7 +13,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 fn test_state(pin: Option<String>) -> AppState {
-    use shared_backend::server::ServerConfig;
+    use crate::config::AppConfig;
     let mut server = ServerConfig::from_env("TEST");
     server.pin = pin;
     server.port = 4406;

@@ -1,68 +1,184 @@
-//! Pulse-specific configuration.
+//! Pulse application configuration (flat struct).
 //!
-//! The common fields (port, site title, pin, max attempts, lockout time,
-//! cookie age, trust-proxy, base URL, feature toggles) are read via
-//! `shared_backend::server::ServerConfig::from_env("PULSE")`. The fields
-//! that are unique to pulse (refresh interval, monitor_* toggles,
-//! enable_coffee) are layered on top.
+//! Per-app copy of the prior `crate::config::AppConfig`
+//! wrapper. The 16 fields that the shared `ServerConfig` had are
+//! inlined here as direct fields of [`AppConfig`], and the env-parsing
+//! logic is duplicated per app so each app tunes its own defaults
+//! without a one-size-fits-all shared abstraction.
 
-use std::sync::Arc;
+use ipnet::IpNet;
+use std::env;
+use std::str::FromStr;
 
+const DEFAULT_PORT: u16 = 4406;
+
+/// Pulse application configuration.
 #[derive(Clone, Debug)]
 pub struct AppConfig {
-    /// Shared server config (port, pin, lockout, base URL, feature toggles).
-    pub server: Arc<shared_backend::server::ServerConfig>,
-    /// Seconds between system-metric refreshes.
+    pub port: u16,
+    pub site_title: String,
+    pub base_url: String,
+    pub allowed_origins: String,
+    pub pin: Option<String>,
+    pub enable_translation: bool,
+    pub enable_themes: bool,
+    pub enable_print: bool,
+    pub show_version: bool,
+    pub show_github: bool,
+    pub trust_proxy: bool,
+    pub trusted_proxies: Vec<IpNet>,
+    pub max_attempts: u32,
+    pub lockout_time_minutes: u64,
+    pub cookie_max_age_hours: i64,
+    pub shutdown_drain_seconds: u64,
     pub refresh_interval: u64,
-    /// Whether to collect CPU stats.
     pub monitor_cpu: bool,
-    /// Whether to collect memory stats.
     pub monitor_memory: bool,
-    /// Whether to collect storage stats.
     pub monitor_storage: bool,
-    /// Whether to collect network stats.
     pub monitor_network: bool,
-    /// Whether to collect GPU stats.
     pub monitor_gpu: bool,
-    /// Whether to show the Buy Me a Coffee link in the footer.
     pub enable_coffee: bool,
+
 }
 
 impl AppConfig {
+    /// Canonical brand name surfaced as the default PWA / site title
+    /// fallback.
+    pub const APP_BRAND: &str = "Pulse";
+
+    /// Build a config by reading common env vars.
     pub fn load() -> Self {
         #[cfg(not(test))]
         {
-            dotenvy::from_path("/app/data/.env").ok();
-            dotenvy::dotenv().ok();
+            let _ = dotenvy::from_path("/app/data/.env");
+            let _ = dotenvy::dotenv();
         }
 
-        let server = Arc::new(shared_backend::server::ServerConfig::from_env("PULSE"));
-
-        let refresh_interval = std::env::var("PULSE_REFRESH_INTERVAL")
-            .ok()
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(2);
+        let port = parse_or("PORT", DEFAULT_PORT);
+        let site_title = first_nonempty_env(&[
+            "Pulse_SITE_TITLE",
+            "Pulse_TITLE",
+            "SITE_TITLE",
+        ])
+        .unwrap_or_else(|| Self::APP_BRAND.to_string());
+        let base_url =
+            env::var("BASE_URL").unwrap_or_else(|_| format!("http://localhost:{port}"));
+        let allowed_origins = env::var("ALLOWED_ORIGINS").unwrap_or_default();
+        let pin = first_nonempty_env(&["Pulse_PIN", "PIN"]).and_then(|p| {
+            let len = p.chars().count();
+            if (4..=64).contains(&len) {
+                Some(p)
+            } else {
+                None
+            }
+        });
+        let trust_proxy = parse_bool_env("TRUST_PROXY");
+        let trusted_proxies = parse_trusted_proxies("TRUSTED_PROXY_IPS");
 
         Self {
-            server,
-            refresh_interval,
-            monitor_cpu: parse_optout_bool("PULSE_MONITOR_CPU", true),
-            monitor_memory: parse_optout_bool("PULSE_MONITOR_MEMORY", true),
-            monitor_storage: parse_optout_bool("PULSE_MONITOR_STORAGE", true),
-            monitor_network: parse_optout_bool("PULSE_MONITOR_NETWORK", true),
-            monitor_gpu: parse_optout_bool("PULSE_MONITOR_GPU", true),
-            enable_coffee: parse_optout_bool("PULSE_ENABLE_COFFEE", true),
+            port,
+            site_title,
+            base_url,
+            allowed_origins,
+            pin,
+            enable_translation: parse_bool_env("ENABLE_TRANSLATION"),
+            enable_themes: parse_optout_bool_env("ENABLE_THEMES", true),
+            enable_print: parse_optout_bool_env("ENABLE_PRINT", true),
+            show_version: parse_optout_bool_env("SHOW_VERSION", true),
+            show_github: parse_optout_bool_env("SHOW_GITHUB", true),
+            trust_proxy,
+            trusted_proxies,
+            max_attempts: parse_or("MAX_ATTEMPTS", 5u32),
+            lockout_time_minutes: parse_or("LOCKOUT_TIME_MINUTES", 15u64),
+            cookie_max_age_hours: parse_or("COOKIE_MAX_AGE_HOURS", 24i64),
+            shutdown_drain_seconds: parse_or("SHUTDOWN_DRAIN_SECONDS", 5u64),
+
         }
+    }
+
+    /// Returns `true` if PIN-based authentication is enabled.
+    #[must_use]
+    pub fn pin_enabled(&self) -> bool {
+        self.pin.is_some()
+    }
+
+    /// Returns the lockout duration as a `std::time::Duration`.
+    #[must_use]
+    pub fn lockout_duration(&self) -> std::time::Duration {
+        std::time::Duration::from_secs(self.lockout_time_minutes * 60)
     }
 }
 
-/// Parse a `true`/`false`/`on`/`off` env var, returning `default` on
-/// missing or unrecognised values. Matches the convention used by
-/// `shared_backend::server::ServerConfig`.
-fn parse_optout_bool(key: &str, default: bool) -> bool {
-    match std::env::var(key).ok().as_deref() {
-        Some("true" | "TRUE" | "True" | "on" | "ON" | "On") => true,
-        Some("false" | "FALSE" | "False" | "off" | "OFF" | "Off") => false,
-        _ => default,
+fn parse_or<T>(name: &str, default: T) -> T
+where
+    T: FromStr,
+{
+    match env::var(name) {
+        Ok(v) => match v.parse() {
+            Ok(parsed) => parsed,
+            Err(_) => {
+                tracing::warn!(
+                    target: "config",
+                    "{name}={v:?} is not a valid value; using default",
+                );
+                default
+            }
+        },
+        Err(_) => default,
+    }
+}
+
+fn parse_bool_env(name: &str) -> bool {
+    env::var(name)
+        .map(|v| v == "true" || v == "on")
+        .unwrap_or(false)
+}
+
+fn parse_optout_bool_env(name: &str, default: bool) -> bool {
+    env::var(name)
+        .map(|v| v != "false" && v != "off")
+        .unwrap_or(default)
+}
+
+fn first_nonempty_env(names: &[&str]) -> Option<String> {
+    for name in names {
+        if let Ok(v) = env::var(name)
+            && !v.is_empty()
+        {
+            return Some(v);
+        }
+    }
+    None
+}
+
+fn parse_trusted_proxies(name: &str) -> Vec<IpNet> {
+    env::var(name)
+        .ok()
+        .map(|s| {
+            s.split(',')
+                .map(|s| s.trim())
+                .filter(|s| !s.is_empty())
+                .filter_map(|s| IpNet::from_str(s).ok())
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn load_does_not_panic() {
+        let cfg = AppConfig::load();
+        assert!(!cfg.site_title.is_empty());
+    }
+
+    #[test]
+    fn lockout_duration_scales_with_minutes() {
+        let cfg = AppConfig::load();
+        let expected =
+            std::time::Duration::from_secs(cfg.lockout_time_minutes * 60);
+        assert_eq!(cfg.lockout_duration(), expected);
     }
 }
