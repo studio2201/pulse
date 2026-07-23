@@ -106,8 +106,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "axum-extra"
+version = "0.10.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9963ff19f40c6102c76756ef0a46004c0d58957d87259fc9208ff8441c12ab96"
+dependencies = [
+ "axum",
+ "axum-core",
+ "bytes",
+ "cookie",
+ "futures-util",
+ "http 1.4.2",
+ "http-body",
+ "http-body-util",
+ "mime",
+ "pin-project-lite",
+ "rustversion",
+ "serde_core",
+ "tower-layer",
+ "tower-service",
+ "tracing",
+]
+
+[[package]]
 name = "backend"
-version = "1.0.18"
+version = "1.0.27"
 dependencies = [
  "axum",
  "chrono",
@@ -218,8 +241,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aa79e62e7697b8e29b513a68abacf485adcd1fe8284a4316c5ae868e6633327"
 dependencies = [
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-link",
 ]
 
@@ -443,7 +468,7 @@ dependencies = [
 
 [[package]]
 name = "frontend"
-version = "1.0.18"
+version = "1.0.27"
 dependencies = [
  "chrono",
  "gloo-net 0.7.0",
@@ -1877,20 +1902,23 @@ dependencies = [
 
 [[package]]
 name = "shared-backend"
-version = "3.0.33"
-source = "git+https://github.com/studio2201/shared-assets.git?tag=v3.0.33#5c1f076b40ab66804648a645cc37978056d104f5"
+version = "3.0.35"
+source = "git+https://github.com/studio2201/shared-assets.git?tag=v3.0.35#24d4c8dcf8840274bdb3a163cc27f74a5f94d54a"
 dependencies = [
  "anyhow",
  "axum",
+ "axum-extra",
  "chrono",
  "constant_time_eq 0.3.1",
  "dotenvy",
  "http-body-util",
  "ipnet",
+ "rand 0.9.5",
  "rusqlite",
  "serde",
  "shared-core",
  "thiserror 2.0.18",
+ "time",
  "tokio",
  "tower-http 0.6.11",
  "tracing",
@@ -1899,8 +1927,8 @@ dependencies = [
 
 [[package]]
 name = "shared-core"
-version = "3.0.33"
-source = "git+https://github.com/studio2201/shared-assets.git?tag=v3.0.33#5c1f076b40ab66804648a645cc37978056d104f5"
+version = "3.0.35"
+source = "git+https://github.com/studio2201/shared-assets.git?tag=v3.0.35#24d4c8dcf8840274bdb3a163cc27f74a5f94d54a"
 dependencies = [
  "constant_time_eq 0.3.1",
  "serde",
@@ -1908,8 +1936,8 @@ dependencies = [
 
 [[package]]
 name = "shared-frontend"
-version = "3.0.33"
-source = "git+https://github.com/studio2201/shared-assets.git?tag=v3.0.33#5c1f076b40ab66804648a645cc37978056d104f5"
+version = "3.0.35"
+source = "git+https://github.com/studio2201/shared-assets.git?tag=v3.0.35#24d4c8dcf8840274bdb3a163cc27f74a5f94d54a"
 dependencies = [
  "js-sys",
  "serde",
