@@ -20,26 +20,6 @@ Open your browser to `http://localhost:4501` to view real-time system metrics im
 
 ---
 
-### One-Line Install (Native Package Manager)
-
-On Debian, Ubuntu, Fedora, or RHEL:
-
-```bash
-curl -fsSL https://studio2201.github.io/packages/install.sh | sudo bash
-```
-
----
-
-### Unraid NAS Deployment
-
-Deploy via the official Unraid Template:
-
-1. Copy [`pulse.xml`](pulse.xml) to your Unraid flash drive under `/boot/config/plugins/dockerMan/templates-user/`.
-2. Open **Docker** -> **Add Container** -> Select **pulse** from the template dropdown.
-3. Click **Apply**.
-
----
-
 ### Environment Configuration
 
 The backend service can be customized using the following environment variables:
