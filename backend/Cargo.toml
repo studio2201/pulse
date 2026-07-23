@@ -28,3 +28,5 @@ sysinfo = "0.39"
 ipnet = "2.9"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "cookies"] }
 sha2 = "0.11"
+axum-extra = { version = "0.12", features = ["cookie"] }
+time = { version = "0.3", default-features = false, features = ["std"] }
