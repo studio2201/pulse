@@ -47,14 +47,14 @@ impl AppConfig {
     pub const APP_BRAND: &str = "Pulse";
 
     /// Build a config by reading common env vars.
-    pub fn load() -> Self {
+    pub fn load_from_env(port: u16) -> Self {
         #[cfg(not(test))]
         {
             let _ = dotenvy::from_path("/app/data/.env");
             let _ = dotenvy::dotenv();
         }
 
-        let port = parse_or("PORT", DEFAULT_PORT);
+        let port = if port != 0 && port != DEFAULT_PORT { port } else { parse_or("PORT", DEFAULT_PORT) };
         let site_title = first_nonempty_env(&[
             "Pulse_SITE_TITLE",
             "Pulse_TITLE",
@@ -92,6 +92,13 @@ impl AppConfig {
             lockout_time_minutes: parse_or("LOCKOUT_TIME_MINUTES", 15u64),
             cookie_max_age_hours: parse_or("COOKIE_MAX_AGE_HOURS", 24i64),
             shutdown_drain_seconds: parse_or("SHUTDOWN_DRAIN_SECONDS", 5u64),
+            refresh_interval: parse_or("PULSE_REFRESH_INTERVAL", 2u64),
+            monitor_cpu: parse_optout_bool_env("PULSE_MONITOR_CPU", true),
+            monitor_memory: parse_optout_bool_env("PULSE_MONITOR_MEMORY", true),
+            monitor_storage: parse_optout_bool_env("PULSE_MONITOR_STORAGE", true),
+            monitor_network: parse_optout_bool_env("PULSE_MONITOR_NETWORK", true),
+            monitor_gpu: parse_optout_bool_env("PULSE_MONITOR_GPU", true),
+            enable_coffee: parse_optout_bool_env("PULSE_ENABLE_COFFEE", true),
 
         }
     }
@@ -170,13 +177,13 @@ mod tests {
 
     #[test]
     fn load_does_not_panic() {
-        let cfg = AppConfig::load();
+        let cfg = AppConfig::load_from_env(4406);
         assert!(!cfg.site_title.is_empty());
     }
 
     #[test]
     fn lockout_duration_scales_with_minutes() {
-        let cfg = AppConfig::load();
+        let cfg = AppConfig::load_from_env(4406);
         let expected =
             std::time::Duration::from_secs(cfg.lockout_time_minutes * 60);
         assert_eq!(cfg.lockout_duration(), expected);

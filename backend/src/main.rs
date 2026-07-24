@@ -35,7 +35,7 @@ async fn main() {
     );
 
     // 2. Load Configuration and Shared State
-    let config = AppConfig::load();
+    let config = AppConfig::load_from_env(4406);
     let shared_stats = Arc::new(tokio::sync::RwLock::new(None));
     let state = AppState::new(config.clone(), shared_stats);
 
