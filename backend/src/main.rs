@@ -1,9 +1,8 @@
-use axum::{Router, middleware, routing::get};
-use shared_backend::middleware::{
-    HstsState, TitleState, cors_layer, hsts_layer, security_headers_layer, title_injection_layer,
-};
-use crate::config::AppConfig;
+use axum::middleware as axum_middleware;
+use axum::{Router, routing::get};
 use std::net::SocketAddr;
+use crate::config::AppConfig;
+use crate::middleware::{cors_layer, hsts_layer, security_headers_layer, title_injection_layer, HstsState, TitleState};
 use std::sync::Arc;
 use std::time::Duration;
 use tower_http::services::ServeDir;
@@ -11,6 +10,7 @@ use tower_http::services::ServeDir;
 mod ip;
 mod config;
 mod cookie_auth;
+mod middleware;
 mod routes;
 mod services;
 mod session_id;
@@ -20,7 +20,6 @@ mod utils;
 #[cfg(test)]
 mod tests;
 
-use config::AppConfig;
 use routes::{auth, stats};
 use services::monitor;
 use state::AppState;
@@ -35,25 +34,13 @@ async fn main() {
     );
 
     // 2. Load Configuration and Shared State
-    let config = AppConfig::load_from_env(4406);
     let shared_stats = Arc::new(tokio::sync::RwLock::new(None));
-    let state = AppState::new(config.clone(), shared_stats);
+    let state = AppState::new(AppConfig::load_from_env(4406), shared_stats);
 
     // Start system metrics loop
     monitor::start_monitor(state.clone());
 
-    utils::pwa::generate_pwa_manifest(&config.site_title);
-
-    // Background cleanup task for per-IP rate-limiting
-    let state_clone = state.clone();
-    tokio::spawn(async move {
-        loop {
-            tokio::time::sleep(Duration::from_secs(60)).await;
-            state_clone.clean_old_rate_limits(RATE_LIMIT_WINDOW).await;
-        }
-    });
-
-    let server_config = Arc::new(ServerConfig::from_env("PULSE"));
+    let server_config = Arc::new(AppConfig::load_from_env(4406));
     let cors = cors_layer(&crate::middleware::CorsState(server_config.clone()));
 
     // 3. API Routes setup
@@ -64,17 +51,17 @@ async fn main() {
         .route("/logout", axum::routing::post(auth::logout))
         .route(
             "/auth-check",
-            axum::routing::get(auth::auth_check).layer(middleware::from_fn_with_state(
+            axum::routing::get(auth::auth_check).layer(axum_middleware::from_fn_with_state(
                 state.clone(),
                 auth::require_pin,
             )),
         )
         .route("/pin-required", axum::routing::get(auth::pin_required))
-        .layer(middleware::from_fn_with_state(
+        .layer(axum_middleware::from_fn_with_state(
             state.clone(),
             auth::rate_limit_middleware,
         ))
-        .layer(middleware::from_fn_with_state(
+        .layer(axum_middleware::from_fn_with_state(
             state.clone(),
             auth::origin_validation_middleware,
         ));
@@ -86,33 +73,33 @@ async fn main() {
         .route("/health", get(health_check))
         .route("/service-worker.js", get(serve_service_worker))
         .fallback_service(ServeDir::new("frontend/dist"))
-        .layer(middleware::from_fn_with_state(
-            TitleState(server_config.clone()),
+        .layer(axum_middleware::from_fn_with_state(
+            crate::middleware::TitleState(server_config.clone()),
             title_injection_layer,
         ))
         .layer(axum::middleware::from_fn(fix_content_length_middleware))
-        .layer(middleware::from_fn_with_state(
+        .layer(axum_middleware::from_fn_with_state(
             crate::middleware::HstsState(server_config.clone()),
             hsts_layer,
         ))
-        .layer(middleware::from_fn_with_state(crate::middleware::SecurityHeadersState(server_config.clone()), crate::middleware::security_headers_layer))
+        .layer(axum_middleware::from_fn_with_state(crate::middleware::SecurityHeadersState(server_config.clone()), crate::middleware::security_headers_layer))
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .layer(cors)
         .with_state(state);
 
-    let listener = match tokio::net::TcpListener::bind(format!("[::]:{}", config.port)).await {
+    let listener = match tokio::net::TcpListener::bind(format!("[::]:{}", server_config.port)).await {
         Ok(l) => {
-            tracing::info!("Starting dual-stack server on [::]:{}", config.port);
+            tracing::info!("Starting dual-stack server on [::]:{}", server_config.port);
             l
         }
         Err(e) => {
             tracing::warn!(
                 "Failed to bind IPv6 [::]:{} ({:?}). Falling back to IPv4 0.0.0.0:{}",
-                config.port,
+                server_config.port,
                 e,
-                config.port
+                server_config.port
             );
-            tokio::net::TcpListener::bind(format!("0.0.0.0:{}", config.port))
+            tokio::net::TcpListener::bind(format!("0.0.0.0:{}", server_config.port))
                 .await
                 .expect("failed to bind to IPv4")
         }

@@ -14,21 +14,17 @@ use tokio::sync::RwLock;
 
 fn test_state(pin: Option<String>) -> AppState {
     use crate::config::AppConfig;
-    let mut server = ServerConfig::from_env("TEST");
+    let mut cfg = AppConfig::load_from_env(4406);
     cfg.pin = pin;
-    server.port = 4406;
-    server.site_title = "TestPulse".to_string();
-    let config = AppConfig {
-        server: Arc::new(server),
-        refresh_interval: 2,
-        monitor_cpu: true,
-        monitor_memory: true,
-        monitor_storage: true,
-        monitor_network: true,
-        monitor_gpu: true,
-        enable_coffee: true,
-    };
-    AppState::new(config, Arc::new(RwLock::new(None)))
+    cfg.site_title = "TestPulse".to_string();
+    cfg.refresh_interval = 2;
+    cfg.monitor_cpu = true;
+    cfg.monitor_memory = true;
+    cfg.monitor_storage = true;
+    cfg.monitor_network = true;
+    cfg.monitor_gpu = true;
+    cfg.enable_coffee = true;
+    AppState::new(cfg, Arc::new(RwLock::new(None)))
 }
 
 #[test]

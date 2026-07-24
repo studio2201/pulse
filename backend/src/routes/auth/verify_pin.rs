@@ -98,7 +98,6 @@ pub async fn verify_pin(
         let attempt = attempts::record_attempt(&ip_str);
         let remaining = state
             .config
-            .server
             .max_attempts
             .saturating_sub(attempt.count);
         tracing::warn!(

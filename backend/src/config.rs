@@ -38,14 +38,12 @@ pub struct AppConfig {
     pub monitor_network: bool,
     pub monitor_gpu: bool,
     pub enable_coffee: bool,
-
 }
 
-impl AppConfig {
-    /// Canonical brand name surfaced as the default PWA / site title
-    /// fallback.
-    pub const APP_BRAND: &str = "Pulse";
+/// Canonical application brand name.
+pub const APP_BRAND: &str = "Pulse";
 
+impl AppConfig {
     /// Build a config by reading common env vars.
     pub fn load_from_env(port: u16) -> Self {
         #[cfg(not(test))]
